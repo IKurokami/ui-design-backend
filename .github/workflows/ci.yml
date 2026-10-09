@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Format, vet, test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Check Go formatting
+        shell: bash
+        run: |
+          unformatted="$(gofmt -l $(git ls-files '*.go'))"
+          if [ -n "$unformatted" ]; then
+            echo "::error::The following Go files need gofmt:"
+            printf '%s\n' "$unformatted"
+            exit 1
+          fi
+
+      - name: Wait for Mailpit SMTP
+        shell: bash
+        run: |
+          for attempt in {1..30}; do
+            if (echo > /dev/tcp/127.0.0.1/1025) 2>/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::Mailpit did not become ready on port 1025"
+          exit 1
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run all tests with race detector
+        run: go test -race -count=1 ./...
+
+      - name: Build all Go packages
+        run: go build ./...
