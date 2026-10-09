@@ -21,10 +21,11 @@ import (
 var (
 	ErrUserAlreadyExists     = errors.New("email đã được sử dụng")
 	ErrInvalidCredentials    = errors.New("thông tin đăng nhập không chính xác")
+	ErrStaffRequired         = errors.New("tài khoản không có quyền quản trị")
 	ErrSessionInvalid        = errors.New("phiên đăng nhập không hợp lệ")
 	ErrSessionExpired        = errors.New("phiên đăng nhập đã hết hạn")
 	ErrSessionReuseDetected  = errors.New("phát hiện token bị tái sử dụng bất thường")
-	ErrPasswordResetNotFound = errors.New("liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn")
+	ErrPasswordResetNotFound = errors.New("liên kết đặt lại mật khẩu không hợp lệ, đã được sử dụng hoặc đã hết hạn")
 )
 
 type AuthService struct {
@@ -95,6 +96,14 @@ func (s *AuthService) Register(ctx context.Context, displayName, email, password
 }
 
 func (s *AuthService) Login(ctx context.Context, identity, password string, remember bool, userAgent, ip string) (string, string, *domain.User, error) {
+	return s.login(ctx, identity, password, remember, userAgent, ip, false)
+}
+
+func (s *AuthService) LoginStaff(ctx context.Context, identity, password string, remember bool, userAgent, ip string) (string, string, *domain.User, error) {
+	return s.login(ctx, identity, password, remember, userAgent, ip, true)
+}
+
+func (s *AuthService) login(ctx context.Context, identity, password string, remember bool, userAgent, ip string, staffOnly bool) (string, string, *domain.User, error) {
 	identity = strings.ToLower(strings.TrimSpace(identity))
 
 	user, err := s.userRepo.FindByEmail(ctx, identity)
@@ -104,6 +113,9 @@ func (s *AuthService) Login(ctx context.Context, identity, password string, reme
 
 	if !auth.CheckPassword(password, user.PasswordHash) {
 		return "", "", nil, ErrInvalidCredentials
+	}
+	if staffOnly && !user.Role.IsStaff() {
+		return "", "", nil, ErrStaffRequired
 	}
 
 	refreshTTL := s.cfg.RefreshTokenTTL
@@ -226,6 +238,7 @@ func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) er
 	email = strings.ToLower(strings.TrimSpace(email))
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
+		log.Printf("[PASSWORD RESET] Email '%s' chưa được đăng ký trong hệ thống. Không gửi email (tiêu chuẩn bảo mật chống rò rỉ tài khoản).", email)
 		// Do not reveal whether user exists (prevent email enumeration)
 		return nil
 	}
@@ -264,11 +277,33 @@ func (s *AuthService) RequestPasswordReset(ctx context.Context, email string) er
 	return nil
 }
 
+func (s *AuthService) findValidPasswordReset(ctx context.Context, rawToken string) (*domain.PasswordReset, error) {
+	if strings.TrimSpace(rawToken) == "" {
+		return nil, ErrPasswordResetNotFound
+	}
+	pr, err := s.resetRepo.FindByTokenHash(ctx, auth.HashToken(rawToken))
+	if errors.Is(err, repository.ErrResetNotFound) {
+		return nil, ErrPasswordResetNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	if pr == nil || !pr.IsValid() {
+		return nil, ErrPasswordResetNotFound
+	}
+	return pr, nil
+}
+
+// Validation does not consume the token; opening an email link is read-only.
+func (s *AuthService) ValidatePasswordReset(ctx context.Context, rawToken string) error {
+	_, err := s.findValidPasswordReset(ctx, rawToken)
+	return err
+}
+
 func (s *AuthService) ConfirmPasswordReset(ctx context.Context, rawToken, newPassword string) error {
-	tokenHash := auth.HashToken(rawToken)
-	pr, err := s.resetRepo.FindByTokenHash(ctx, tokenHash)
-	if err != nil || !pr.IsValid() {
-		return ErrPasswordResetNotFound
+	pr, err := s.findValidPasswordReset(ctx, rawToken)
+	if err != nil {
+		return err
 	}
 
 	hashedPassword, err := auth.HashPassword(newPassword)
@@ -276,16 +311,12 @@ func (s *AuthService) ConfirmPasswordReset(ctx context.Context, rawToken, newPas
 		return err
 	}
 
-	if err := s.userRepo.UpdatePassword(ctx, pr.UserID, hashedPassword); err != nil {
+	if err := s.resetRepo.Complete(ctx, pr.ID, hashedPassword); err != nil {
+		if errors.Is(err, repository.ErrResetNotFound) {
+			return ErrPasswordResetNotFound
+		}
 		return err
 	}
-
-	if err := s.resetRepo.MarkAsUsed(ctx, pr.ID); err != nil {
-		return err
-	}
-
-	// Revoke all existing sessions for security
-	_ = s.sessionRepo.RevokeAllForUser(ctx, pr.UserID)
 
 	return nil
 }

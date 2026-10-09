@@ -1,0 +1,52 @@
+package http
+
+import (
+	"encoding/json"
+	"errors"
+	"github.com/go-chi/chi/v5"
+	"net/http"
+	"ui-design-backend/internal/domain"
+	"ui-design-backend/internal/middleware"
+	"ui-design-backend/internal/repository"
+)
+
+func (h *StoryHandler) GetReadingProgress(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "private, no-store")
+	user, ok := middleware.GetUserFromContext(r.Context())
+	if !ok {
+		RespondError(w, http.StatusUnauthorized, "Chưa xác thực")
+		return
+	}
+	progress, err := h.storyService.GetReadingProgress(r.Context(), user.ID, chi.URLParam(r, "id"))
+	if err != nil {
+		h.readingError(w, err)
+		return
+	}
+	RespondJSON(w, http.StatusOK, progress)
+}
+
+func (h *StoryHandler) SaveReadingProgress(w http.ResponseWriter, r *http.Request) {
+	user, ok := middleware.GetUserFromContext(r.Context())
+	if !ok {
+		RespondError(w, http.StatusUnauthorized, "Chưa xác thực")
+		return
+	}
+	var progress domain.ReadingProgress
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096)).Decode(&progress); err != nil || progress.ChapterID == "" {
+		RespondError(w, http.StatusBadRequest, "Thiếu ID chương hợp lệ")
+		return
+	}
+	if err := h.storyService.SaveReadingProgress(r.Context(), user.ID, chi.URLParam(r, "id"), progress.ChapterID); err != nil {
+		h.readingError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *StoryHandler) readingError(w http.ResponseWriter, err error) {
+	if errors.Is(err, repository.ErrStoryNotFound) || errors.Is(err, repository.ErrChapterNotFound) {
+		RespondError(w, http.StatusNotFound, "Không tìm thấy truyện hoặc chương có nội dung")
+		return
+	}
+	RespondError(w, http.StatusInternalServerError, "Không thể lưu hoặc tải chương đọc gần nhất")
+}

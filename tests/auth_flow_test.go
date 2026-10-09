@@ -41,6 +41,7 @@ func setupTestApp(t *testing.T) (http.Handler, *auth.TokenService, func()) {
 		SMTPPort:                1025,
 		MailFrom:                "test@uidesign.local",
 		AppBaseURL:              "http://localhost:5173",
+		UploadDir:               "./test_uploads",
 	}
 
 	db, err := repository.NewDB(cfg.DBDriver, cfg.DBDSN)
@@ -51,19 +52,26 @@ func setupTestApp(t *testing.T) (http.Handler, *auth.TokenService, func()) {
 	userRepo := repository.NewUserRepo(db)
 	sessionRepo := repository.NewSessionRepo(db)
 	resetRepo := repository.NewPasswordResetRepo(db)
+	profileRepo := repository.NewProfileRepo(db)
 
 	tokenService := auth.NewTokenService(cfg.JWTSecret, cfg.AccessTokenTTL)
 	mailService := mailer.NewMailer(cfg)
 	authService := service.NewAuthService(cfg, userRepo, sessionRepo, resetRepo, tokenService, mailService)
+	profileService := service.NewProfileService(userRepo, profileRepo)
 
 	authMW := middleware.NewAuthMiddleware(cfg, tokenService, authService)
 	authHandler := transporthttp.NewAuthHandler(authService, authMW)
+	profileHandler := transporthttp.NewProfileHandler(profileService, cfg.UploadDir)
+	storyRepo := repository.NewStoryRepo(db)
+	storyService := service.NewStoryService(storyRepo)
+	storyHandler := transporthttp.NewStoryHandler(storyService)
 
-	router := transporthttp.NewRouter(cfg, authHandler, authMW)
+	router := transporthttp.NewRouter(cfg, authHandler, profileHandler, storyHandler, authMW)
 
 	cleanup := func() {
 		_ = db.Close()
 		_ = os.Remove(dbFile)
+		_ = os.RemoveAll(cfg.UploadDir)
 	}
 
 	return router, tokenService, cleanup

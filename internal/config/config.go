@@ -25,6 +25,8 @@ type Config struct {
 	SMTPPass                string
 	MailFrom                string
 	AppBaseURL              string
+	UploadDir               string
+	AdminEmail              string
 }
 
 func Load() (*Config, error) {
@@ -51,6 +53,8 @@ func Load() (*Config, error) {
 	smtpPass := getEnv("SMTP_PASS", "")
 	mailFrom := getEnv("MAIL_FROM", "Mộc <no-reply@uidesign.local>")
 	appBaseURL := getEnv("APP_BASE_URL", "http://localhost:5173")
+	uploadDir := getEnv("UPLOAD_DIR", "./uploads")
+	adminEmail := getEnv("ADMIN_EMAIL", "")
 
 	return &Config{
 		Port:                    port,
@@ -69,6 +73,8 @@ func Load() (*Config, error) {
 		SMTPPass:                smtpPass,
 		MailFrom:                mailFrom,
 		AppBaseURL:              appBaseURL,
+		UploadDir:               uploadDir,
+		AdminEmail:              adminEmail,
 	}, nil
 }
 

@@ -5,7 +5,11 @@
 *.so
 *.dylib
 bin/
-server
+/server
+
+# Uploads
+uploads/
+test_uploads/
 
 # Test & Database files
 *.db

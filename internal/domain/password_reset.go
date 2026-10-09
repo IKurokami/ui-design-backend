@@ -21,6 +21,6 @@ func (pr *PasswordReset) IsValid() bool {
 type PasswordResetRepository interface {
 	Create(ctx context.Context, pr *PasswordReset) error
 	FindByTokenHash(ctx context.Context, tokenHash string) (*PasswordReset, error)
-	MarkAsUsed(ctx context.Context, id string) error
+	Complete(ctx context.Context, id, passwordHash string) error
 	InvalidateActiveForUser(ctx context.Context, userID string) error
 }

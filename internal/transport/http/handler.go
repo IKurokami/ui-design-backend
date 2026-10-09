@@ -12,15 +12,20 @@ import (
 )
 
 type AuthHandler struct {
-	authService *service.AuthService
-	authMW      *middleware.AuthMiddleware
+	authService  *service.AuthService
+	authMW       *middleware.AuthMiddleware
+	adminHandler *AdminHandler
 }
 
-func NewAuthHandler(authService *service.AuthService, authMW *middleware.AuthMiddleware) *AuthHandler {
-	return &AuthHandler{
+func NewAuthHandler(authService *service.AuthService, authMW *middleware.AuthMiddleware, adminHandlers ...*AdminHandler) *AuthHandler {
+	h := &AuthHandler{
 		authService: authService,
 		authMW:      authMW,
 	}
+	if len(adminHandlers) > 0 {
+		h.adminHandler = adminHandlers[0]
+	}
+	return h
 }
 
 type RegisterRequest struct {
@@ -101,11 +106,21 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			ID:          user.ID,
 			DisplayName: user.DisplayName,
 			Email:       user.Email,
+			Role:        user.Role,
 		},
 	})
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	h.login(w, r, false)
+}
+
+func (h *AuthHandler) AdminLogin(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	h.login(w, r, true)
+}
+
+func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request, staffOnly bool) {
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		RespondError(w, http.StatusBadRequest, "Dữ liệu yêu cầu không hợp lệ.")
@@ -118,7 +133,11 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, refreshToken, user, err := h.authService.Login(
+	login := h.authService.Login
+	if staffOnly {
+		login = h.authService.LoginStaff
+	}
+	accessToken, refreshToken, user, err := login(
 		r.Context(),
 		req.Identity,
 		req.Password,
@@ -127,6 +146,10 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		r.RemoteAddr,
 	)
 	if err != nil {
+		if errors.Is(err, service.ErrStaffRequired) {
+			RespondError(w, http.StatusForbidden, "Tài khoản này không có quyền quản trị.")
+			return
+		}
 		RespondError(w, http.StatusUnauthorized, "Email hoặc mật khẩu không chính xác.")
 		return
 	}
@@ -138,6 +161,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			ID:          user.ID,
 			DisplayName: user.DisplayName,
 			Email:       user.Email,
+			Role:        user.Role,
 		},
 	})
 }
@@ -163,6 +187,7 @@ func (h *AuthHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 			ID:          userCtx.ID,
 			DisplayName: userCtx.DisplayName,
 			Email:       userCtx.Email,
+			Role:        userCtx.Role,
 		},
 	})
 }
@@ -185,7 +210,32 @@ func (h *AuthHandler) RequestPasswordReset(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (h *AuthHandler) ValidatePasswordReset(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	var req struct {
+		Token string `json:"token"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		RespondError(w, http.StatusBadRequest, "Dữ liệu yêu cầu không hợp lệ.")
+		return
+	}
+	if err := h.authService.ValidatePasswordReset(r.Context(), req.Token); err != nil {
+		respondPasswordResetError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func respondPasswordResetError(w http.ResponseWriter, err error) {
+	if errors.Is(err, service.ErrPasswordResetNotFound) {
+		RespondError(w, http.StatusBadRequest, "Liên kết đặt lại mật khẩu không hợp lệ, đã được sử dụng hoặc đã hết hạn. Vui lòng yêu cầu liên kết mới.")
+		return
+	}
+	RespondError(w, http.StatusInternalServerError, "Không thể xử lý yêu cầu đặt lại mật khẩu. Vui lòng thử lại sau.")
+}
+
 func (h *AuthHandler) ConfirmPasswordReset(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
 	var req ConfirmPasswordResetRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		RespondError(w, http.StatusBadRequest, "Dữ liệu yêu cầu không hợp lệ.")
@@ -198,7 +248,7 @@ func (h *AuthHandler) ConfirmPasswordReset(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := h.authService.ConfirmPasswordReset(r.Context(), req.Token, req.NewPassword); err != nil {
-		RespondError(w, http.StatusBadRequest, "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.")
+		respondPasswordResetError(w, err)
 		return
 	}
 

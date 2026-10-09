@@ -98,9 +98,52 @@ Bộ test tự động kiểm tra:
 | `POST` | `/api/auth/login` | Public | Đăng nhập tài khoản & thiết lập cookies |
 | `POST` | `/api/auth/logout` | Cookie | Đăng xuất, hủy session & xóa cookies |
 | `GET` | `/api/auth/me` | Cookie (Auto-refresh) | Lấy thông tin user (tự refresh nếu hết hạn) |
+| `POST` | `/api/auth/admin/login` | Public | Đăng nhập riêng cho admin hoặc moderator |
 | `POST` | `/api/auth/password-reset` | Public | Gửi email liên kết đặt lại mật khẩu |
+| `POST` | `/api/auth/password-reset/validate` | Public | Kiểm tra token còn hiệu lực trước khi hiển thị form, không tiêu thụ token |
 | `POST` | `/api/auth/password-reset/confirm`| Public | Cập nhật mật khẩu mới bằng token |
+| `GET` | `/api/profile/me` | Cookie (Auto-refresh) | Lấy hồ sơ cá nhân của user đăng nhập (tự tạo mặc định nếu chưa có) |
+| `PUT` | `/api/profile/me` | Cookie (Auto-refresh) | Cập nhật hồ sơ cá nhân (avatar, banner, bio, themeColor,...) |
+| `GET` | `/api/profile/{userId}` | Public | Xem hồ sơ công khai của người dùng khác |
+| `POST` | `/api/upload` | Cookie (Auto-refresh) | Tải file (ảnh avatar, banner) lên thư mục cục bộ (`uploads/`) |
+| `GET` | `/uploads/{filename}` | Public | Truy cập file tĩnh đã tải lên |
 | `GET` | `/health` | Public | Health check |
+| `GET` | `/api/stories` | Public | Truyện đã đăng/hoàn thành với ít nhất 2 chương có nội dung |
+| `GET` | `/api/stories?reading=true` | Cookie (Auto-refresh) | Truyện trong lịch sử đọc của tài khoản, mới đọc trước |
+| `GET` | `/api/stories/mine` | Cookie (Auto-refresh) | Toàn bộ truyện của tác giả, bao gồm bản nháp và chương rỗng |
+| `GET` | `/api/stories/{id}` | Public | Thông tin truyện và nội dung các chương theo thứ tự |
+| `GET` | `/api/stories/{id}/reading-progress` | Cookie (Auto-refresh) | Chương, trang và điểm trong nội dung đọc gần nhất; chưa đọc có `chapterId` rỗng |
+| `PUT` | `/api/stories/{id}/reading-progress` | Cookie (Auto-refresh) | Lưu `chapterId`, `mode`, `pageIndex`, `blockIndex`, `textOffset`, `scrollProgress`, trả `204`; chương phải thuộc truyện và có nội dung |
+| `GET` | `/api/admin/stories` | Staff | Danh sách toàn bộ truyện, gồm cả bản nháp và truyện ít chương |
+| `GET` | `/api/admin/users` | Admin | Danh sách người dùng |
+| `PUT` | `/api/admin/users/{id}/role` | Admin | Đặt role `admin` hoặc `moderator` |
+| `DELETE` | `/api/admin/users/{id}` | Admin | Xóa người dùng cùng dữ liệu truyện, chương, hồ sơ và phiên |
+
+## Quản trị
+
+Trang quản trị frontend nằm tại `/admin/login`. Backend chỉ chấp nhận tài khoản có `role` là `admin` hoặc `moderator` ở endpoint này. Moderator quản lý được toàn bộ truyện: sửa thông tin, chương, ảnh, trạng thái và xóa truyện. Admin có thêm danh sách người dùng và được đặt role hoặc xóa người dùng.
+
+Tài khoản đăng ký mới không có role quản trị. Để bootstrap admin khi chạy server, đặt email của một tài khoản đã tồn tại trong `.env`:
+
+```ini
+ADMIN_EMAIL=admin@example.com
+```
+
+Server sẽ đặt tài khoản đó thành `admin` mỗi lần khởi động. Sau đó admin có thể cấp `moderator` cho tài khoản khác trong `/admin/users`. Role được đọc lại từ database ở mỗi request được bảo vệ nên việc thu hồi quyền có hiệu lực ngay ở request kế tiếp.
+Sau khi bootstrap, có thể xóa `ADMIN_EMAIL` khỏi `.env` để role được quản lý hoàn toàn trong trang quản trị.
+
+Khi khởi động, backend tự chạy migration `reader-v1` trong transaction: thêm `chapters.has_content`, tính lại cờ từ nội dung hiện có và tạo bảng `reading_progress` với khóa `(user_id, story_id)`. Migration không xóa truyện và có thể chạy lại. Cờ nội dung được cập nhật khi tạo/sửa chương; HTML rỗng, khoảng trắng, script/style không được tính là nội dung. Chương chỉ có ảnh hợp lệ được tính là có nội dung. Khi xóa chương hoặc truyện, lịch sử liên quan được xóa cùng trong transaction.
+
+Sau khi cập nhật mã nguồn, khởi động lại server bằng `go run ./cmd/server` để áp dụng API và migration mới. Không cần chạy lại seed.
+
+Các API danh sách truyện trả thêm `previewImages`: tối đa 3 URL ảnh khác nhau, ảnh bìa trước rồi đến ảnh minh họa trong chương theo thứ tự chương. Ảnh nhúng trong HTML cũng được lấy khi chương chưa có danh sách `illustrations`. Không nhân bản ảnh để đủ 3 lớp, không trả toàn bộ nội dung chương trong danh sách và không cần thêm migration cho trường này.
+
+`GET /api/stories?reading=true` trả thêm `readingProgress` trên từng truyện: `chapterId`, `chapterNumber`, `chapterTitle` và `updatedAt` (thời điểm đọc UTC). Danh sách được sắp xếp theo `reading_progress.updated_at` giảm dần, không theo ngày tạo/sửa truyện. Truyện đã đọc còn 1 chương vẫn có trong danh sách này; bản nháp chỉ xuất hiện với tác giả. `GET /api/stories/{id}/reading-progress` cũng trả thông tin chương và thời gian tương tự. Mỗi lần mở chương có nội dung, frontend gọi PUT; backend tự lấy thời gian hiện tại và cập nhật database kể cả khi đọc lại cùng chương. Bảng hiện tại đã lưu các dữ liệu cần thiết, không cần migration hay seed lại database.
+
+`/password-reset/validate` nhận JSON `{ "token": "..." }`, trả `204` khi token còn hiệu lực và `400` nếu token sai, đã dùng hoặc hết hạn. Response không được cache. `/password-reset/confirm` tiêu thụ token, cập nhật mật khẩu và thu hồi các phiên đăng nhập trong một transaction; mỗi token chỉ có thể hoàn tất một lần, kể cả khi có các yêu cầu đồng thời.
+
+`/api/upload` nhận multipart/form-data với dung lượng tối đa 10MB (hỗ trợ JPG, PNG, WEBP, GIF, SVG) và trả về URL tĩnh dạng `/uploads/<uuid>.<ext>`.
+
 
 ---
 

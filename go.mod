@@ -10,6 +10,7 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/crypto v0.57.0
+	golang.org/x/net v0.59.0
 	modernc.org/sqlite v1.60.1
 )
 

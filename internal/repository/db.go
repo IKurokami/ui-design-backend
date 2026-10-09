@@ -85,8 +85,66 @@ func (db *DB) migrate() error {
 
 	CREATE INDEX IF NOT EXISTS idx_password_resets_token_hash ON password_resets(token_hash);
 	CREATE INDEX IF NOT EXISTS idx_password_resets_user_id ON password_resets(user_id);
+
+	CREATE TABLE IF NOT EXISTS user_profiles (
+		id VARCHAR(64) PRIMARY KEY,
+		user_id VARCHAR(64) NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+		avatar_url TEXT,
+		banner_url TEXT,
+		bio TEXT,
+		headline VARCHAR(150),
+		theme_color VARCHAR(30) DEFAULT '#3B82F6',
+		custom_css TEXT,
+		website_url VARCHAR(255),
+		location VARCHAR(100),
+		social_links TEXT,
+		created_at TIMESTAMP NOT NULL,
+		updated_at TIMESTAMP NOT NULL
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON user_profiles(user_id);
+
+	CREATE TABLE IF NOT EXISTS stories (
+		id VARCHAR(64) PRIMARY KEY,
+		user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		title VARCHAR(255) NOT NULL,
+		description TEXT,
+		cover_url TEXT,
+		category VARCHAR(100),
+		tags TEXT,
+		status VARCHAR(50) DEFAULT 'published',
+		created_at TIMESTAMP NOT NULL,
+		updated_at TIMESTAMP NOT NULL
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_stories_user_id ON stories(user_id);
+
+	CREATE TABLE IF NOT EXISTS chapters (
+		id VARCHAR(64) PRIMARY KEY,
+		story_id VARCHAR(64) NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+		chapter_number INT NOT NULL DEFAULT 1,
+		title VARCHAR(255) NOT NULL,
+		content TEXT,
+		illustrations TEXT,
+		created_at TIMESTAMP NOT NULL,
+		updated_at TIMESTAMP NOT NULL
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_chapters_story_id ON chapters(story_id);
 	`
 
 	_, err := db.Exec(schema)
-	return err
+	if err != nil {
+		return err
+	}
+	if err := db.migrateManagement(); err != nil {
+		return err
+	}
+	if err := db.migrateReading(); err != nil {
+		return err
+	}
+	if err := db.migrateChapterOnly(); err != nil {
+		return err
+	}
+	return db.migrateEbooks()
 }
