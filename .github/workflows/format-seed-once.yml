@@ -1,0 +1,34 @@
+name: Format seed files (temporary)
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  format-seed:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'fix/ci-failures-20261010' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the fix branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Format seed files and commit the changes
+        shell: bash
+        run: |
+          gofmt -w cmd/seed/data_part1.go cmd/seed/data_part2.go cmd/seed/data_part3.go cmd/seed/data_part4.go
+          git add cmd/seed/data_part1.go cmd/seed/data_part2.go cmd/seed/data_part3.go cmd/seed/data_part4.go
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m "style: format Go seed fixtures with gofmt"
+            git push origin HEAD:fix/ci-failures-20261010
+          fi
