@@ -152,6 +152,7 @@ func TestStoryAndChapterFlow(t *testing.T) {
 
 	// 3. Get story by ID
 	req = httptest.NewRequest("GET", "/api/stories/"+createdStory.ID, nil)
+	req.AddCookie(authCookie)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
@@ -167,6 +168,7 @@ func TestStoryAndChapterFlow(t *testing.T) {
 
 	// 4. List stories
 	req = httptest.NewRequest("GET", "/api/stories", nil)
+	req.AddCookie(authCookie)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
@@ -269,6 +271,7 @@ func TestStoryAndChapterFlow(t *testing.T) {
 	}
 	// The public list returns distinct images without sending full chapter contents.
 	req = httptest.NewRequest("GET", "/api/stories", nil)
+	req.AddCookie(authCookie)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
