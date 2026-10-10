@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
+	"time"
 
 	"ui-design-backend/internal/domain"
 )
@@ -311,32 +312,46 @@ func (r *StoryRepo) DeleteStory(ctx context.Context, id, userID string) error {
 	return tx.Commit()
 }
 
+// notifyReadersForNewContent is called within the same transaction as a new
+// readable chapter. A user qualifies by following, saving, or having read the
+// story during the previous 90 days. UNION and the notification primary key
+// guarantee only one notification per user per chapter.
+func notifyReadersForNewContent(ctx context.Context, tx *sql.Tx, ch *domain.Chapter) error {
+    cutoff := ch.UpdatedAt.Add(-90 * 24 * time.Hour)
+    _, err := tx.ExecContext(ctx, `INSERT INTO story_notifications
+        (user_id, story_id, chapter_id, chapter_title, created_at)
+        SELECT interested.user_id, s.id, $1, $2, $3
+        FROM stories s
+        JOIN (
+          SELECT user_id, story_id FROM story_follows
+          UNION
+          SELECT user_id, story_id FROM favorite_stories
+          UNION
+          SELECT user_id, story_id FROM reading_progress WHERE updated_at >= $5
+        ) interested ON interested.story_id = s.id
+        WHERE s.id = $4 AND s.status IN ('published', 'completed')
+          AND interested.user_id <> s.user_id
+          AND NOT EXISTS (
+              SELECT 1 FROM story_notification_mutes mute
+              WHERE mute.user_id = interested.user_id AND mute.story_id = s.id
+          )
+        ON CONFLICT (user_id, chapter_id) DO NOTHING`,
+        ch.ID, ch.Title, ch.UpdatedAt, ch.StoryID, cutoff)
+    return err
+}
+
 func (r *StoryRepo) CreateChapter(ctx context.Context, ch *domain.Chapter) error {
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	_, err = tx.ExecContext(ctx, `INSERT INTO chapters(id,story_id,chapter_number,title,content,illustrations,created_at,updated_at,has_content)
-		VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-		ch.ID, ch.StoryID, ch.ChapterNumber, ch.Title, ch.Content, ch.Illustrations, ch.CreatedAt, ch.UpdatedAt, contentFlag(ch.Content))
-	if err != nil {
-		return err
-	}
-	// Publish only a newly readable chapter from a publicly released work.
-	// Keep the chapter and notification inserts atomic.
-	if contentFlag(ch.Content) == 1 {
-		_, err = tx.ExecContext(ctx, `INSERT INTO story_notifications(user_id,story_id,chapter_id,chapter_title,created_at)
-			SELECT f.user_id,f.story_id,$1,$2,$3 FROM story_follows f
-			JOIN stories s ON s.id=f.story_id
-			WHERE f.story_id=$4 AND s.status IN ('published','completed')
-			ON CONFLICT(user_id,chapter_id) DO NOTHING`,
-			ch.ID, ch.Title, ch.CreatedAt, ch.StoryID)
-		if err != nil {
-			return err
-		}
-	}
-	return tx.Commit()
+    tx, err := r.db.BeginTx(ctx, nil)
+    if err != nil { return err }
+    defer tx.Rollback()
+    _, err = tx.ExecContext(ctx, `INSERT INTO chapters(id,story_id,chapter_number,title,content,illustrations,created_at,updated_at,has_content)
+        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        ch.ID, ch.StoryID, ch.ChapterNumber, ch.Title, ch.Content, ch.Illustrations, ch.CreatedAt, ch.UpdatedAt, contentFlag(ch.Content))
+    if err != nil { return err }
+    if contentFlag(ch.Content) == 1 {
+        if err = notifyReadersForNewContent(ctx, tx, ch); err != nil { return err }
+    }
+    return tx.Commit()
 }
 
 func (r *StoryRepo) GetChapter(ctx context.Context, id string) (*domain.Chapter, error) {
@@ -404,35 +419,27 @@ func (r *StoryRepo) ListChaptersByStory(ctx context.Context, storyID string) ([]
 }
 
 func (r *StoryRepo) UpdateChapter(ctx context.Context, ch *domain.Chapter) error {
-	query := `UPDATE chapters
-	          SET title = $1, content = $2, illustrations = $3, updated_at = $4, has_content = $5
-	          WHERE id = $6`
-	if r.db.Driver == "sqlite" {
-		query = `UPDATE chapters
-		         SET title = ?, content = ?, illustrations = ?, updated_at = ?, has_content = ?
-		         WHERE id = ?`
-	}
-
-	res, err := r.db.ExecContext(ctx, query,
-		ch.Title,
-		ch.Content,
-		ch.Illustrations,
-		ch.UpdatedAt,
-		contentFlag(ch.Content),
-		ch.ID,
-	)
-	if err != nil {
-		return err
-	}
-
-	rows, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if rows == 0 {
-		return ErrChapterNotFound
-	}
-	return nil
+    tx, err := r.db.BeginTx(ctx, nil)
+    if err != nil { return err }
+    defer tx.Rollback()
+    var oldFlag int
+    var originalStoryID string
+    err = tx.QueryRowContext(ctx, "SELECT story_id, has_content FROM chapters WHERE id = $1", ch.ID).
+        Scan(&originalStoryID, &oldFlag)
+    if errors.Is(err, sql.ErrNoRows) { return ErrChapterNotFound }
+    if err != nil { return err }
+    if originalStoryID != ch.StoryID { return ErrChapterNotFound }
+    newFlag := contentFlag(ch.Content)
+    _, err = tx.ExecContext(ctx, `UPDATE chapters
+        SET title=$1, content=$2, illustrations=$3, updated_at=$4, has_content=$5
+        WHERE id=$6`, ch.Title, ch.Content, ch.Illustrations, ch.UpdatedAt, newFlag, ch.ID)
+    if err != nil { return err }
+    // A chapter drafted empty is announced only on its first publication.
+    // Subsequent edits to existing readable content must not spam readers.
+    if oldFlag == 0 && newFlag == 1 {
+        if err = notifyReadersForNewContent(ctx, tx, ch); err != nil { return err }
+    }
+    return tx.Commit()
 }
 
 func (r *StoryRepo) DeleteChapter(ctx context.Context, id string) error {
