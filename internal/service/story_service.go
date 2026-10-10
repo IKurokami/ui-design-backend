@@ -353,3 +353,14 @@ func (s *StoryService) ListPendingComments(ctx context.Context, limit int) ([]do
 func (s *StoryService) ModerateComment(ctx context.Context, id, status string) error {
 	return s.repo.ModerateComment(ctx, id, status)
 }
+
+
+func (s *StoryService) MutedNotificationStoryIDs(ctx context.Context, userID string) ([]string, error) {
+    return s.repo.MutedNotificationStoryIDs(ctx, userID)
+}
+func (s *StoryService) MuteStoryNotifications(ctx context.Context, userID, storyID string) error {
+    return s.repo.MuteStoryNotifications(ctx, userID, storyID)
+}
+func (s *StoryService) UnmuteStoryNotifications(ctx context.Context, userID, storyID string) error {
+    return s.repo.UnmuteStoryNotifications(ctx, userID, storyID)
+}
