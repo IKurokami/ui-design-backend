@@ -76,6 +76,11 @@ type StoryRepository interface {
 	ListAllPage(ctx context.Context, page, pageSize int, query string) ([]*Story, int, error)
 	ListReadingStories(ctx context.Context, userID string) ([]*Story, error)
 	ListPage(ctx context.Context, userID, readerID string, page, pageSize int) ([]*Story, error)
+	SearchPage(ctx context.Context, query string, page, pageSize int) ([]*Story, error)
+	ListFavorites(ctx context.Context, userID string, page, pageSize int) ([]*Story, error)
+	FavoriteIDs(ctx context.Context, userID string) ([]string, error)
+	SaveFavorite(ctx context.Context, userID, storyID string) (bool, error)
+	RemoveFavorite(ctx context.Context, userID, storyID string) error
 	UpdateStory(ctx context.Context, story *Story) error
 	DeleteStory(ctx context.Context, id, userID string) error
 
