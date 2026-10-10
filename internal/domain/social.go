@@ -24,6 +24,9 @@ type StoryNotification struct {
 }
 
 type SocialRepository interface {
+	MutedNotificationStoryIDs(ctx context.Context, userID string) ([]string, error)
+	MuteStoryNotifications(ctx context.Context, userID, storyID string) error
+	UnmuteStoryNotifications(ctx context.Context, userID, storyID string) error
 	FollowIDs(ctx context.Context, userID string) ([]string, error)
 	Follow(ctx context.Context, userID, storyID string) (bool, error)
 	Unfollow(ctx context.Context, userID, storyID string) error
