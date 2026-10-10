@@ -156,5 +156,34 @@ func (db *DB) migrate() error {
 		PRIMARY KEY (user_id, story_id)
 	);
 	CREATE INDEX IF NOT EXISTS idx_favorite_stories_user_time ON favorite_stories(user_id, created_at DESC);`)
+
+	if err != nil { return err }
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS story_follows (
+		user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		story_id VARCHAR(64) NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+		created_at TIMESTAMP NOT NULL,
+		PRIMARY KEY (user_id, story_id)
+	);
+	CREATE INDEX IF NOT EXISTS idx_story_follows_story ON story_follows(story_id);
+	CREATE TABLE IF NOT EXISTS story_notifications (
+		user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		story_id VARCHAR(64) NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+		chapter_id VARCHAR(64) NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+		chapter_title TEXT NOT NULL,
+		created_at TIMESTAMP NOT NULL,
+		read_at TIMESTAMP,
+		PRIMARY KEY (user_id, chapter_id)
+	);
+	CREATE INDEX IF NOT EXISTS idx_story_notifications_user ON story_notifications(user_id, created_at DESC);
+	CREATE TABLE IF NOT EXISTS story_comments (
+		id VARCHAR(64) PRIMARY KEY,
+		story_id VARCHAR(64) NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+		user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		body TEXT NOT NULL,
+		status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
+		created_at TIMESTAMP NOT NULL
+	);
+	CREATE INDEX IF NOT EXISTS idx_story_comments_story_status ON story_comments(story_id, status, created_at DESC);
+	CREATE INDEX IF NOT EXISTS idx_story_comments_moderation ON story_comments(status, created_at ASC);`)
 	return err
 }
