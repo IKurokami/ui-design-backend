@@ -23,7 +23,15 @@ type StoryNotification struct {
 	Read         bool      `json:"read"`
 }
 
+type MutedStory struct {
+    StoryID string `json:"storyId"`
+    StoryTitle string `json:"storyTitle"`
+}
+
 type SocialRepository interface {
+    ListMutedStories(ctx context.Context, userID string) ([]MutedStory, error)
+    DismissNotification(ctx context.Context, userID, chapterID string) error
+    ClearNotifications(ctx context.Context, userID string) error
 	MutedNotificationStoryIDs(ctx context.Context, userID string) ([]string, error)
 	MuteStoryNotifications(ctx context.Context, userID, storyID string) error
 	UnmuteStoryNotifications(ctx context.Context, userID, storyID string) error
