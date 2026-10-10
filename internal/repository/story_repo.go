@@ -312,25 +312,25 @@ func (r *StoryRepo) DeleteStory(ctx context.Context, id, userID string) error {
 }
 
 func (r *StoryRepo) CreateChapter(ctx context.Context, ch *domain.Chapter) error {
-	query := `INSERT INTO chapters (id, story_id, chapter_number, title, content, illustrations, created_at, updated_at, has_content)
-	          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
-	if r.db.Driver == "sqlite" {
-		query = `INSERT INTO chapters (id, story_id, chapter_number, title, content, illustrations, created_at, updated_at, has_content)
-		         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	tx,err:=r.db.BeginTx(ctx,nil)
+	if err!=nil{return err}
+	defer tx.Rollback()
+	_,err=tx.ExecContext(ctx,`INSERT INTO chapters(id,story_id,chapter_number,title,content,illustrations,created_at,updated_at,has_content)
+		VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+		ch.ID,ch.StoryID,ch.ChapterNumber,ch.Title,ch.Content,ch.Illustrations,ch.CreatedAt,ch.UpdatedAt,contentFlag(ch.Content))
+	if err!=nil{return err}
+	// Publish only a newly readable chapter from a publicly released work.
+	// Keep the chapter and notification inserts atomic.
+	if contentFlag(ch.Content)==1 {
+		_,err=tx.ExecContext(ctx,`INSERT INTO story_notifications(user_id,story_id,chapter_id,chapter_title,created_at)
+			SELECT f.user_id,f.story_id,$1,$2,$3 FROM story_follows f
+			JOIN stories s ON s.id=f.story_id
+			WHERE f.story_id=$4 AND s.status IN ('published','completed')
+			ON CONFLICT(user_id,chapter_id) DO NOTHING`,
+			ch.ID,ch.Title,ch.CreatedAt,ch.StoryID)
+		if err!=nil{return err}
 	}
-
-	_, err := r.db.ExecContext(ctx, query,
-		ch.ID,
-		ch.StoryID,
-		ch.ChapterNumber,
-		ch.Title,
-		ch.Content,
-		ch.Illustrations,
-		ch.CreatedAt,
-		ch.UpdatedAt,
-		contentFlag(ch.Content),
-	)
-	return err
+	return tx.Commit()
 }
 
 func (r *StoryRepo) GetChapter(ctx context.Context, id string) (*domain.Chapter, error) {
