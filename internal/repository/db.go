@@ -146,5 +146,13 @@ func (db *DB) migrate() error {
 	if err := db.migrateChapterOnly(); err != nil {
 		return err
 	}
-	return db.migrateEbooks()
+	if err := db.migrateEbooks(); err != nil { return err }
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS favorite_stories (
+		user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		story_id VARCHAR(64) NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+		created_at TIMESTAMP NOT NULL,
+		PRIMARY KEY (user_id, story_id)
+	);
+	CREATE INDEX IF NOT EXISTS idx_favorite_stories_user_time ON favorite_stories(user_id, created_at DESC);`)
+	return err
 }
