@@ -317,8 +317,8 @@ func (r *StoryRepo) DeleteStory(ctx context.Context, id, userID string) error {
 // story during the previous 90 days. UNION and the notification primary key
 // guarantee only one notification per user per chapter.
 func notifyReadersForNewContent(ctx context.Context, tx *sql.Tx, ch *domain.Chapter) error {
-    cutoff := ch.UpdatedAt.Add(-90 * 24 * time.Hour)
-    _, err := tx.ExecContext(ctx, `INSERT INTO story_notifications
+	cutoff := ch.UpdatedAt.Add(-90 * 24 * time.Hour)
+	_, err := tx.ExecContext(ctx, `INSERT INTO story_notifications
         (user_id, story_id, chapter_id, chapter_title, created_at)
         SELECT interested.user_id, s.id, $1, $2, $3
         FROM stories s
@@ -336,22 +336,28 @@ func notifyReadersForNewContent(ctx context.Context, tx *sql.Tx, ch *domain.Chap
               WHERE mute.user_id = interested.user_id AND mute.story_id = s.id
           )
         ON CONFLICT (user_id, chapter_id) DO NOTHING`,
-        ch.ID, ch.Title, ch.UpdatedAt, ch.StoryID, cutoff)
-    return err
+		ch.ID, ch.Title, ch.UpdatedAt, ch.StoryID, cutoff)
+	return err
 }
 
 func (r *StoryRepo) CreateChapter(ctx context.Context, ch *domain.Chapter) error {
-    tx, err := r.db.BeginTx(ctx, nil)
-    if err != nil { return err }
-    defer tx.Rollback()
-    _, err = tx.ExecContext(ctx, `INSERT INTO chapters(id,story_id,chapter_number,title,content,illustrations,created_at,updated_at,has_content)
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	_, err = tx.ExecContext(ctx, `INSERT INTO chapters(id,story_id,chapter_number,title,content,illustrations,created_at,updated_at,has_content)
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-        ch.ID, ch.StoryID, ch.ChapterNumber, ch.Title, ch.Content, ch.Illustrations, ch.CreatedAt, ch.UpdatedAt, contentFlag(ch.Content))
-    if err != nil { return err }
-    if contentFlag(ch.Content) == 1 {
-        if err = notifyReadersForNewContent(ctx, tx, ch); err != nil { return err }
-    }
-    return tx.Commit()
+		ch.ID, ch.StoryID, ch.ChapterNumber, ch.Title, ch.Content, ch.Illustrations, ch.CreatedAt, ch.UpdatedAt, contentFlag(ch.Content))
+	if err != nil {
+		return err
+	}
+	if contentFlag(ch.Content) == 1 {
+		if err = notifyReadersForNewContent(ctx, tx, ch); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }
 
 func (r *StoryRepo) GetChapter(ctx context.Context, id string) (*domain.Chapter, error) {
@@ -419,27 +425,39 @@ func (r *StoryRepo) ListChaptersByStory(ctx context.Context, storyID string) ([]
 }
 
 func (r *StoryRepo) UpdateChapter(ctx context.Context, ch *domain.Chapter) error {
-    tx, err := r.db.BeginTx(ctx, nil)
-    if err != nil { return err }
-    defer tx.Rollback()
-    var oldFlag int
-    var originalStoryID string
-    err = tx.QueryRowContext(ctx, "SELECT story_id, has_content FROM chapters WHERE id = $1", ch.ID).
-        Scan(&originalStoryID, &oldFlag)
-    if errors.Is(err, sql.ErrNoRows) { return ErrChapterNotFound }
-    if err != nil { return err }
-    if originalStoryID != ch.StoryID { return ErrChapterNotFound }
-    newFlag := contentFlag(ch.Content)
-    _, err = tx.ExecContext(ctx, `UPDATE chapters
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	var oldFlag int
+	var originalStoryID string
+	err = tx.QueryRowContext(ctx, "SELECT story_id, has_content FROM chapters WHERE id = $1", ch.ID).
+		Scan(&originalStoryID, &oldFlag)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ErrChapterNotFound
+	}
+	if err != nil {
+		return err
+	}
+	if originalStoryID != ch.StoryID {
+		return ErrChapterNotFound
+	}
+	newFlag := contentFlag(ch.Content)
+	_, err = tx.ExecContext(ctx, `UPDATE chapters
         SET title=$1, content=$2, illustrations=$3, updated_at=$4, has_content=$5
         WHERE id=$6`, ch.Title, ch.Content, ch.Illustrations, ch.UpdatedAt, newFlag, ch.ID)
-    if err != nil { return err }
-    // A chapter drafted empty is announced only on its first publication.
-    // Subsequent edits to existing readable content must not spam readers.
-    if oldFlag == 0 && newFlag == 1 {
-        if err = notifyReadersForNewContent(ctx, tx, ch); err != nil { return err }
-    }
-    return tx.Commit()
+	if err != nil {
+		return err
+	}
+	// A chapter drafted empty is announced only on its first publication.
+	// Subsequent edits to existing readable content must not spam readers.
+	if oldFlag == 0 && newFlag == 1 {
+		if err = notifyReadersForNewContent(ctx, tx, ch); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }
 
 func (r *StoryRepo) DeleteChapter(ctx context.Context, id string) error {
