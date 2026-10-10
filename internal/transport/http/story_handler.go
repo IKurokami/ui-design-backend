@@ -72,7 +72,13 @@ func (h *StoryHandler) ListStories(w http.ResponseWriter, r *http.Request) {
 			}
 			ownerID = user.ID
 		}
-		items, err := h.storyService.ListPage(r.Context(), ownerID, readerID, page, size+1)
+		var items []*domain.Story
+		var err error
+		if ownerID == "" && readerID == "" {
+			items, err = h.storyService.SearchPage(r.Context(), r.URL.Query().Get("q"), page, size+1)
+		} else {
+			items, err = h.storyService.ListPage(r.Context(), ownerID, readerID, page, size+1)
+		}
 		if err != nil {
 			RespondError(w, 500, "Lỗi khi lấy danh sách truyện")
 			return
@@ -189,6 +195,13 @@ func (h *StoryHandler) GetStory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	story, err := h.storyService.GetStory(r.Context(), id)
+	if err == nil {
+		user, ok := middleware.GetUserFromContext(r.Context())
+		if !ok { RespondError(w, http.StatusUnauthorized, "Chưa đăng nhập"); return }
+		if story.Status != "published" && story.Status != "completed" && story.UserID != user.ID && !user.Role.IsStaff() {
+			RespondError(w, http.StatusNotFound, "Không tìm thấy truyện"); return
+		}
+	}
 	if err != nil {
 		if errors.Is(err, repository.ErrStoryNotFound) {
 			RespondError(w, http.StatusNotFound, "Không tìm thấy truyện")
@@ -330,6 +343,15 @@ func (h *StoryHandler) GetChapter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	chapter, err := h.storyService.GetChapter(r.Context(), id)
+	if err == nil {
+		user, ok := middleware.GetUserFromContext(r.Context())
+		if !ok { RespondError(w, http.StatusUnauthorized, "Chưa đăng nhập"); return }
+		story, storyErr := h.storyService.GetStory(r.Context(), chapter.StoryID)
+		if storyErr != nil { RespondError(w, http.StatusNotFound, "Không tìm thấy chương"); return }
+		if story.Status != "published" && story.Status != "completed" && story.UserID != user.ID && !user.Role.IsStaff() {
+			RespondError(w, http.StatusNotFound, "Không tìm thấy chương"); return
+		}
+	}
 	if err != nil {
 		if errors.Is(err, repository.ErrChapterNotFound) {
 			RespondError(w, http.StatusNotFound, "Không tìm thấy chương")
