@@ -17,8 +17,8 @@ jobs:
           go-version-file: go.mod
       - name: Format feature sources
         run: |
-          gofmt -w internal/domain/social.go internal/domain/story.go internal/repository/db.go internal/repository/social_repo.go internal/repository/story_repo.go internal/service/story_service.go internal/transport/http/social_handler.go internal/transport/http/router.go
-          git add internal/domain/social.go internal/domain/story.go internal/repository/db.go internal/repository/social_repo.go internal/repository/story_repo.go internal/service/story_service.go internal/transport/http/social_handler.go internal/transport/http/router.go
+          gofmt -w internal/domain/social.go internal/domain/story.go internal/repository/db.go internal/repository/social_repo.go internal/repository/story_repo.go internal/service/story_service.go internal/transport/http/social_handler.go internal/transport/http/router.go tests/social_flow_test.go tests/story_flow_test.go
+          git add internal/domain/social.go internal/domain/story.go internal/repository/db.go internal/repository/social_repo.go internal/repository/story_repo.go internal/service/story_service.go internal/transport/http/social_handler.go internal/transport/http/router.go tests/social_flow_test.go tests/story_flow_test.go
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
