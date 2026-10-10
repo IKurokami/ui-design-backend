@@ -181,3 +181,28 @@ func (r *StoryRepo) ModerateComment(ctx context.Context, id, status string) erro
 	}
 	return nil
 }
+
+
+func (r *StoryRepo) MutedNotificationStoryIDs(ctx context.Context, userID string) ([]string, error) {
+    rows, err := r.db.QueryContext(ctx, "SELECT story_id FROM story_notification_mutes WHERE user_id = $1 ORDER BY created_at DESC", userID)
+    if err != nil { return nil, err }
+    defer rows.Close()
+    ids := []string{}
+    for rows.Next() {
+        var id string
+        if err := rows.Scan(&id); err != nil { return nil, err }
+        ids = append(ids, id)
+    }
+    return ids, rows.Err()
+}
+func (r *StoryRepo) MuteStoryNotifications(ctx context.Context, userID, storyID string) error {
+    _, err := r.db.ExecContext(ctx, `INSERT INTO story_notification_mutes(user_id, story_id, created_at)
+        SELECT $1, s.id, $3 FROM stories s
+        WHERE s.id = $2 AND s.status IN ('published','completed')
+        ON CONFLICT(user_id,story_id) DO NOTHING`, userID, storyID, time.Now().UTC())
+    return err
+}
+func (r *StoryRepo) UnmuteStoryNotifications(ctx context.Context, userID, storyID string) error {
+    _, err := r.db.ExecContext(ctx, "DELETE FROM story_notification_mutes WHERE user_id = $1 AND story_id = $2", userID, storyID)
+    return err
+}
