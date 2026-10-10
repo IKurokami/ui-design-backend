@@ -176,6 +176,9 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 				r.Use(authMW.RequireAuth)
 			}
 			r.Get("/", storyHandler.Notifications)
+			r.Get("/muted", storyHandler.MutedNotifications)
+			r.Post("/mute/{id}", storyHandler.MuteNotifications)
+			r.Delete("/mute/{id}", storyHandler.UnmuteNotifications)
 			r.Put("/{id}/read", storyHandler.ReadNotification)
 		})
 		r.Route("/api/comments", func(r chi.Router) {

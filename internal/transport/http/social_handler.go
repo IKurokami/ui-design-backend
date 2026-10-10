@@ -185,3 +185,38 @@ func (h *StoryHandler) ModerateComment(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (h *StoryHandler) MutedNotifications(w http.ResponseWriter, r *http.Request) {
+	userID, ok := socialUser(w, r)
+	if !ok {
+		return
+	}
+	ids, err := h.storyService.MutedNotificationStoryIDs(r.Context(), userID)
+	if err != nil {
+		RespondError(w, 500, "Không thể tải danh sách tắt thông báo")
+		return
+	}
+	RespondJSON(w, 200, map[string]any{"ids": ids})
+}
+func (h *StoryHandler) MuteNotifications(w http.ResponseWriter, r *http.Request) {
+	userID, ok := socialUser(w, r)
+	if !ok {
+		return
+	}
+	if err := h.storyService.MuteStoryNotifications(r.Context(), userID, chi.URLParam(r, "id")); err != nil {
+		RespondError(w, 500, "Không thể tắt thông báo")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+func (h *StoryHandler) UnmuteNotifications(w http.ResponseWriter, r *http.Request) {
+	userID, ok := socialUser(w, r)
+	if !ok {
+		return
+	}
+	if err := h.storyService.UnmuteStoryNotifications(r.Context(), userID, chi.URLParam(r, "id")); err != nil {
+		RespondError(w, 500, "Không thể bật lại thông báo")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
