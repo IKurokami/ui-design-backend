@@ -15,8 +15,8 @@ func getStoriesPart1() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -15),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Tái sinh tại thế giới xa lạ",
+					Number:        1,
+					Title:         "Chương 1: Tái sinh tại thế giới xa lạ",
 					Illustrations: []string{"/mock-images/ln_13.jpg", "/mock-images/ln_12.png"},
 					Content: `<p>Ánh nắng sớm xuyên qua rèm cửa sổ bằng vải thô, rọi những vệt sáng vàng óng lên sàn gỗ mộc mạc. Gió phương Bắc mang theo hơi thở se lạnh của mùa đông vừa tan, len qua khe cửa khẽ làm lay động trang giấy còn vương mùi mực tươi.</p>
 <p>— <em>"Rốt cuộc thì... đây không phải là một giấc mơ."</em></p>
@@ -30,8 +30,8 @@ func getStoriesPart1() []StorySeed {
 <p>Một nụ cười khẽ nở trên môi đứa trẻ. Cuộc đời mới này, cậu nhất định sẽ dốc hết toàn lực sống một cách xứng đáng!</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Vị gia sư nhỏ tuổi Roxy Migurdia",
+					Number:        2,
+					Title:         "Chương 2: Vị gia sư nhỏ tuổi Roxy Migurdia",
 					Illustrations: []string{"/mock-images/ln_14.png"},
 					Content: `<p>Vào một buổi sáng đầu hè ngát hương cỏ non, cánh cổng gỗ của ngôi nhà nhà Greyrat mở ra. Một thiếu nữ vóc dáng nhỏ nhắn bước vào sân. Mái tóc màu xanh lam buộc bím hai bên buông xõa qua vai, chiếc áo choàng pháp sư rộng thùng thình và cây quyền trượng dài gần bằng chiều cao cơ thể.</p>
 <p>— "Tôi là Roxy Migurdia, theo lời mời của ngài Paul đến làm gia sư ma pháp cho thiếu gia Rudeus."</p>
@@ -45,8 +45,8 @@ func getStoriesPart1() []StorySeed {
 <p>Sân vườn hoàn toàn rơi vào im lặng tuyệt đối. Chiếc mũ phù thủy của Roxy rơi tụt xuống đất.</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Lời từ biệt và bầu trời giông bão",
+					Number:        3,
+					Title:         "Chương 3: Lời từ biệt và bầu trời giông bão",
 					Illustrations: []string{"/mock-images/ln_15.png"},
 					Content: `<p>Hai năm thấm thoát trôi qua dưới sự chỉ dạy tận tình của Roxy. Rudeus đã học được cách thi triển ma pháp cấp Thánh và vượt qua bài kiểm tra tốt nghiệp trong cơn mưa rào dữ dội ngoài đồng hoang.</p>
 <p>Đêm trước ngày khởi hành, Roxy ngồi trên bậu cửa sổ, ngắm nhìn ánh trăng vằng vặc in bóng trên dòng sông ngoại ô làng Buena.</p>
@@ -57,8 +57,8 @@ func getStoriesPart1() []StorySeed {
 <p>Sáng hôm sau, khi tia nắng đầu tiên chưa kịp xua tan màn sương, bóng dáng nhỏ bé mang chiếc áo choàng xanh đã khuất dần phía chân trời. Rudeus siết chặt mặt dây chuyền trong tay, lòng dâng lên một quyết tâm sắt đá. Một ngày nào đó, cậu sẽ trở thành một người đàn ông đáng tin cậy để gặp lại người thầy đầu tiên của mình.</p>`,
 				},
 				{
-					Number: 4,
-					Title:  "Chương 4: Thành phố Roa và cô tiểu thư kiêu ngạo Eris",
+					Number:        4,
+					Title:         "Chương 4: Thành phố Roa và cô tiểu thư kiêu ngạo Eris",
 					Illustrations: []string{"/mock-images/ln_16.png", "/mock-images/ln_17.png"},
 					Content: `<p>Cỗ xe ngựa lọc cọc dừng lại trước cánh cổng dinh thự bề thế của Lãnh chúa Boreas Greyrat tại thành phố phồn hoa Roa. Nhiệm vụ mới của Rudeus là làm gia sư cho cô con gái duy nhất của gia tộc: Eris Boreas Greyrat.</p>
 <p>— "Rầm!"</p>
@@ -81,8 +81,8 @@ func getStoriesPart1() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -18),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Mở mắt giữa vương đô Lugnica",
+					Number:        1,
+					Title:         "Chương 1: Mở mắt giữa vương đô Lugnica",
 					Illustrations: []string{"/mock-images/ln_19.jpg", "/mock-images/ln_18.jpg"},
 					Content: `<p>Chớp mắt một cái, khung cảnh cửa hàng tiện lợi quen thuộc bỗng chốc biến mất. Thay vào đó là một khu chợ sầm uất với những cỗ xe rồng kéo đồ sộ, tiếng rao hàng huyên náo và những người dân mang tai thú kỳ lạ.</p>
 <p>— "Hả?! Chuyện quái gì thế này? Triệu hồi thế giới khác sao?!"</p>
@@ -94,8 +94,8 @@ func getStoriesPart1() []StorySeed {
 <p>Đứng ở đầu hẻm là một thiếu nữ tuyệt mỹ với mái tóc màu bạch kim lấp lánh dưới ánh chiều tà, đôi mắt màu thạch anh tím ngập tràn vẻ kiên định, và bên vai là một chú tinh linh mèo nhỏ nhắn đang lơ lửng.</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Máu tươi nơi nhà kho tăm tối",
+					Number:        2,
+					Title:         "Chương 2: Máu tươi nơi nhà kho tăm tối",
 					Illustrations: []string{"/mock-images/ln_8.png"},
 					Content: `<p>Đêm buông xuống trên khu ổ chuột vương đô. Subaru cùng thiếu nữ tự xưng là "Satella" lần theo dấu vết của kẻ trộm huy hiệu đến một nhà kho chứa đồ phế thải cũ kỹ.</p>
 <p>Mùi rỉ sét nồng nặc và không khí đặc quánh sự bất an. Cánh cửa gỗ khẽ kêu kẽo kẹt khi Subaru đẩy nhẹ vào.</p>
@@ -109,8 +109,8 @@ func getStoriesPart1() []StorySeed {
 <p>Bóng tối nuốt chửng toàn bộ ý thức.</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Trở về từ cõi chết",
+					Number:        3,
+					Title:         "Chương 3: Trở về từ cõi chết",
 					Illustrations: []string{"/mock-images/ln_20.jpg"},
 					Content: `<p>— "Này cậu em, có mua táo không thì bảo? Đứng ngây người ra chắn hết lối vào quầy hàng của tôi rồi đấy!"</p>
 <p>Subaru bừng tỉnh, ngã nhào ra đất, thở dốc dữ dội. Mồ hôi lạnh đầm đìa ướt đẫm lưng áo. Cậu vội vàng vạch áo kiểm tra bụng: không có vết thương, không có máu, thậm chí tấm vải áo còn nguyên vẹn chưa từng bị xé rách.</p>
@@ -121,8 +121,8 @@ func getStoriesPart1() []StorySeed {
 <p>Bàn tay Subaru run lên bần bật, nhưng đôi mắt cậu rực lên một ngọn lửa kiên định chưa từng thấy. Lần này, cậu sẽ không để bi kịch lặp lại!</p>`,
 				},
 				{
-					Number: 4,
-					Title:  "Chương 4: Tia hy vọng từ dinh thự Roswaal",
+					Number:        4,
+					Title:         "Chương 4: Tia hy vọng từ dinh thự Roswaal",
 					Illustrations: []string{"/mock-images/ln_1.png", "/mock-images/ln_21.png"},
 					Content: `<p>Sau trận chiến sinh tử đánh bại kẻ săn ruột Elsa Granhirte nhờ sự trợ giúp của Kiếm Thánh Reinhard, Subaru mở mắt ra trên chiếc giường phủ nệm êm ái tại dinh thự quý tộc Roswaal.</p>
 <p>Bên cạnh giường là hai cô hầu gái sinh đôi với mái tóc ngắn màu xanh lam và hồng đào, mặc trang phục maid hoàn hảo không tì vết.</p>
@@ -143,8 +143,8 @@ func getStoriesPart1() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -21),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Buổi khai giảng và 100.000 điểm tích lũy",
+					Number:        1,
+					Title:         "Chương 1: Buổi khai giảng và 100.000 điểm tích lũy",
 					Illustrations: []string{"/mock-images/ln_22.jpg", "/mock-images/ln_10.png"},
 					Content: `<p>Mỗi tháng một học sinh được cấp 100.000 điểm cá nhân, tương đương 100.000 yên tiền mặt để tiêu xài tùy thích trong khuôn viên trường rộng lớn như một thành phố thu nhỏ. Không kỷ luật gắt gao, không bài tập về nhà ép buộc, tự do chơi game và ngủ gật trong giờ học.</p>
 <p>Đa phần các học sinh lớp 1-D coi đây là thiên đường trần gian. Họ điên cuồng vung tiền vào những bữa ăn sang trọng, quần áo hàng hiệu và máy chơi game đắt tiền.</p>
@@ -154,8 +154,8 @@ func getStoriesPart1() []StorySeed {
 <p>Một câu trả lời sắc lẹm chuẩn phong cách Horikita. Nhưng cả hai đều lờ mờ nhận ra: bữa tiệc nào rồi cũng phải tàn, và cái giá phải trả cho sự tự do thái quá này sẽ không hề rẻ.</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Cú sốc ngày đầu tháng Năm",
+					Number:        2,
+					Title:         "Chương 2: Cú sốc ngày đầu tháng Năm",
 					Illustrations: []string{"/mock-images/ln_23.png"},
 					Content: `<p>Ngày 1 tháng Năm. Tiếng chuông báo tin nhắn chuyển điểm vang lên đồng loạt trong lớp học. Mọi ánh mắt háo hức nhìn vào màn hình điện thoại.</p>
 <p>— "Ơ... sao số dư tháng này lại là 0 điểm?!"</p>
@@ -167,8 +167,8 @@ func getStoriesPart1() []StorySeed {
 <p>Tiếng la hét và tuyệt vọng bao trùm căn phòng. Trò chơi sinh tồn trí tuệ chính thức bắt đầu.</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Kỳ thi trắc nghiệm và ván cờ sau cánh gà",
+					Number:        3,
+					Title:         "Chương 3: Kỳ thi trắc nghiệm và ván cờ sau cánh gà",
 					Illustrations: []string{"/mock-images/ln_24.png", "/mock-images/ln_25.jpg"},
 					Content: `<p>Nếu có bất kỳ ai bị điểm liệt trong kỳ thi giữa kỳ sắp tới, người đó sẽ lập tức bị đuổi học không khoan nhượng. Ba tên học sinh cá biệt đội sổ của lớp gồm Sudo, Yamauchi và Ike đang đứng trước bờ vực diệt vong.</p>
 <p>Horikita cố gắng mở lớp phụ đạo nhưng bị từ chối thẳng thừng bởi thái độ kiêu ngạo của cô.</p>
@@ -192,8 +192,8 @@ func getStoriesPart1() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -24),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Bản báo cáo không thương vong",
+					Number:        1,
+					Title:         "Chương 1: Bản báo cáo không thương vong",
 					Illustrations: []string{"/mock-images/ln_28.jpg", "/mock-images/ln_27.png"},
 					Content: `<p>— "Báo cáo chiến sự ngày hôm nay: Mặt trận phía Đông, tiểu đội Spearhead đã đẩy lùi hoàn toàn đợt tiến công của quân đoàn Legion. Thiệt hại quân ta: Không có thương vong về người."</p>
 <p>Tiếng phát thanh viên dịu dàng vang lên trên khắp các đại lộ của thủ đô Charité. Người dân da trắng thuần chủng Alba nâng ly sâm panh chúc mừng một nền hòa bình giả tạo được che đậy bằng máu và nước mắt.</p>
@@ -201,8 +201,8 @@ func getStoriesPart1() []StorySeed {
 <p>Những cỗ máy Juggernaut bốn chân bằng hợp kim nhôm giòn tan không hề tự động lái. Bên trong khoang lái chật hẹp, ngột ngạt nhiệt độ lên tới bốn mươi độ C là những thiếu niên, thiếu nữ thuộc chủng tộc màu da bị tước đoạt quốc tịch và quyền con người – những kẻ mang con số '86'.</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Tiếng gọi qua thiết bị Para-RAID",
+					Number:        2,
+					Title:         "Chương 2: Tiếng gọi qua thiết bị Para-RAID",
 					Illustrations: []string{"/mock-images/ln_5.png"},
 					Content: `<p>Chiếc khuyên tai Para-RAID khẽ rung lên, kích hoạt xung thần kinh kết nối trực tiếp vào thùy cảm giác của Lena. Một tiếng rè rè của sóng âm vang lên, rồi một giọng nói trầm ổn, lạnh lùng như băng tuyết phương Bắc truyền đến:</p>
 <p>— "Handler One, đây là Undertaker. Tiểu đội Spearhead nghe lệnh."</p>
@@ -213,8 +213,8 @@ func getStoriesPart1() []StorySeed {
 <p>Đó là lần đầu tiên Lena lắng nghe giọng nói của Shin – chàng trai mang biệt danh "Tử Thần", người mang trên mình sứ mệnh tiễn đưa những đồng đội đã ngã xuống về nơi an nghỉ cuối cùng.</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Hoa bỉ ngạn nở rộ bên chiến hào",
+					Number:        3,
+					Title:         "Chương 3: Hoa bỉ ngạn nở rộ bên chiến hào",
 					Illustrations: []string{"/mock-images/ln_29.png", "/mock-images/ln_30.jpg"},
 					Content: `<p>Mặt trời lặn nhuộm đỏ rực cánh đồng hoa bỉ ngạn trải dài vô tận ngoài căn cứ Khu Vực 86. Shin ngồi trên nắp khoang lái của cỗ Juggernaut mang biểu tượng bộ xương không đầu cầm lưỡi hái, tay cầm con dao găm tỉ mỉ khắc tên người đồng đội vừa hy sinh sáng nay lên một mảnh nhôm nhỏ.</p>
 <p>Năm trăm bảy mươi sáu mảnh nhôm. Đó là số lượng linh hồn mà cậu đang gánh vác trên lưng.</p>
@@ -237,8 +237,8 @@ func getStoriesPart1() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -27),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Bài luận thanh xuân là một trò lừa dối",
+					Number:        1,
+					Title:         "Chương 1: Bài luận thanh xuân là một trò lừa dối",
 					Illustrations: []string{"/mock-images/ln_33.jpg", "/mock-images/ln_32.png"},
 					Content: `<p><em>"Thanh xuân là một điều dối trá, là một sự tha hóa độc ác. Những kẻ luôn miệng ca ngợi thanh xuân chỉ đang cố lừa dối bản thân và những người xung quanh..."</em></p>
 <p>Đó là những dòng mở đầu trong bài luận tốt nghiệp môn Ngữ văn của Hikigaya Hachiman. Và phần thưởng cho sự chân thật quá mức đó là một cú đấm vào bụng từ cô giáo chủ nhiệm Hiratsuka Shizuka.</p>
@@ -249,8 +249,8 @@ func getStoriesPart1() []StorySeed {
 <p>Đó là lời chào đầu tiên của Tuyệt sắc giai nhân trường Sobu – Yukinoshita Yukino – dành cho Hachiman.</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Yuigahama Yui và mẻ bánh quy cháy khét",
+					Number:        2,
+					Title:         "Chương 2: Yuigahama Yui và mẻ bánh quy cháy khét",
 					Illustrations: []string{"/mock-images/ln_2.png"},
 					Content: `<p>Thành viên thứ ba xuất hiện như một tia nắng xua tan bầu không khí ngột ngạt giữa hai con người lập dị. Yuigahama Yui – cô nàng tóc búi củ tỏi ngây thơ, luôn nở nụ cười rạng rỡ và lo sợ bị người khác cô lập.</p>
 <p>— "Tớ... tớ muốn học cách làm bánh quy để tặng cho một người!"</p>
@@ -262,8 +262,8 @@ func getStoriesPart1() []StorySeed {
 <p>Cả căn phòng bỗng chốc lặng ngắt. Yukino ngước lên nhìn Hachiman bằng một ánh mắt hoàn toàn khác, còn mặt Yui thì đỏ bừng như quả cà chua chín.</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Cuộc đối thoại tìm kiếm điều chân thực",
+					Number:        3,
+					Title:         "Chương 3: Cuộc đối thoại tìm kiếm điều chân thực",
 					Illustrations: []string{"/mock-images/ln_34.png", "/mock-images/ln_35.jpg"},
 					Content: `<p>Mùa đông lạnh buốt bao trùm khuôn viên trường. Sau những biến cố đau lòng tại kỳ lễ hội văn hóa và chuyến dã ngoại Kyoto, bức tường ngăn cách giữa ba người họ ngày càng trở nên mong manh và đau đớn.</p>
 <p>Trong căn phòng câu lạc bộ không bật lò sưởi, Hachiman siết chặt nắm tay, đối diện với Yukino và Yui:</p>
