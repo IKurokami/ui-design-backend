@@ -73,6 +73,7 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 			r.Use(authMW.RequireAuth)
 			r.Use(middleware.RequireStaff)
 			r.Get("/stories", authHandler.adminHandler.ListStories)
+			if storyHandler != nil { r.Get("/comments", storyHandler.PendingComments);r.Put("/comments/{id}",storyHandler.ModerateComment) }
 			r.Group(func(r chi.Router) {
 				r.Use(middleware.RequireAdmin)
 				r.Get("/users", authHandler.adminHandler.ListUsers)
@@ -125,6 +126,8 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 				r.Post("/{id}/chapters", storyHandler.CreateChapter)
 			})
 
+			r.Get("/{id}/comments",storyHandler.Comments)
+			r.Post("/{id}/comments",storyHandler.CreateComment)
 			r.Get("/{id}", storyHandler.GetStory)
 		})
 
@@ -156,6 +159,23 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 		})
 	}
 
+	if storyHandler != nil {
+		r.Route("/api/follows",func(r chi.Router){
+			if authMW!=nil{r.Use(authMW.RequireAuth)}
+			r.Get("/ids",storyHandler.FollowIDs)
+			r.Post("/{id}",storyHandler.FollowStory)
+			r.Delete("/{id}",storyHandler.UnfollowStory)
+		})
+		r.Route("/api/notifications",func(r chi.Router){
+			if authMW!=nil{r.Use(authMW.RequireAuth)}
+			r.Get("/",storyHandler.Notifications)
+			r.Put("/{id}/read",storyHandler.ReadNotification)
+		})
+		r.Route("/api/comments",func(r chi.Router){
+			if authMW!=nil{r.Use(authMW.RequireAuth)}
+			r.Delete("/{id}",storyHandler.DeleteComment)
+		})
+	}
 	if len(ebookHandlers) > 0 && ebookHandlers[0] != nil {
 		h := ebookHandlers[0]
 		r.Route("/api/ebooks", func(r chi.Router) {
