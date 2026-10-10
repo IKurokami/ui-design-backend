@@ -365,11 +365,11 @@ func (s *StoryService) UnmuteStoryNotifications(ctx context.Context, userID, sto
 }
 
 func (s *StoryService) ListMutedStories(ctx context.Context, userID string) ([]domain.MutedStory, error) {
-    return s.repo.ListMutedStories(ctx, userID)
+	return s.repo.ListMutedStories(ctx, userID)
 }
 func (s *StoryService) DismissNotification(ctx context.Context, userID, chapterID string) error {
-    return s.repo.DismissNotification(ctx, userID, chapterID)
+	return s.repo.DismissNotification(ctx, userID, chapterID)
 }
 func (s *StoryService) ClearNotifications(ctx context.Context, userID string) error {
-    return s.repo.ClearNotifications(ctx, userID)
+	return s.repo.ClearNotifications(ctx, userID)
 }

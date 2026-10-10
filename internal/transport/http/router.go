@@ -177,9 +177,9 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 			}
 			r.Get("/", storyHandler.Notifications)
 			r.Get("/muted", storyHandler.MutedNotifications)
-            r.Get("/muted/stories", storyHandler.MutedStoryList)
-            r.Delete("/", storyHandler.ClearNotifications)
-            r.Delete("/{id}", storyHandler.DismissNotification)
+			r.Get("/muted/stories", storyHandler.MutedStoryList)
+			r.Delete("/", storyHandler.ClearNotifications)
+			r.Delete("/{id}", storyHandler.DismissNotification)
 			r.Post("/mute/{id}", storyHandler.MuteNotifications)
 			r.Delete("/mute/{id}", storyHandler.UnmuteNotifications)
 			r.Put("/{id}/read", storyHandler.ReadNotification)

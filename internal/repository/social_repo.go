@@ -199,21 +199,27 @@ func (r *StoryRepo) MutedNotificationStoryIDs(ctx context.Context, userID string
 	return ids, rows.Err()
 }
 func (r *StoryRepo) MuteStoryNotifications(ctx context.Context, userID, storyID string) error {
-    // Muting means permanently blocking new notifications until re-enabled,
-    // and immediately cancelling all existing alerts for this story.
-    // Both actions use one transaction to avoid a half-applied cancellation.
-    tx, err := r.db.BeginTx(ctx, nil)
-    if err != nil { return err }
-    defer tx.Rollback()
-    _, err = tx.ExecContext(ctx, `INSERT INTO story_notification_mutes(user_id, story_id, created_at)
+	// Muting means permanently blocking new notifications until re-enabled,
+	// and immediately cancelling all existing alerts for this story.
+	// Both actions use one transaction to avoid a half-applied cancellation.
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	_, err = tx.ExecContext(ctx, `INSERT INTO story_notification_mutes(user_id, story_id, created_at)
         SELECT $1, s.id, $3 FROM stories s
         WHERE s.id = $2 AND s.status IN ('published','completed')
         ON CONFLICT(user_id,story_id) DO NOTHING`, userID, storyID, time.Now().UTC())
-    if err != nil { return err }
-    _, err = tx.ExecContext(ctx, `DELETE FROM story_notifications
+	if err != nil {
+		return err
+	}
+	_, err = tx.ExecContext(ctx, `DELETE FROM story_notifications
         WHERE user_id = $1 AND story_id = $2`, userID, storyID)
-    if err != nil { return err }
-    return tx.Commit()
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 func (r *StoryRepo) UnmuteStoryNotifications(ctx context.Context, userID, storyID string) error {
 	_, err := r.db.ExecContext(ctx, "DELETE FROM story_notification_mutes WHERE user_id = $1 AND story_id = $2", userID, storyID)
@@ -221,30 +227,34 @@ func (r *StoryRepo) UnmuteStoryNotifications(ctx context.Context, userID, storyI
 }
 
 func (r *StoryRepo) ListMutedStories(ctx context.Context, userID string) ([]domain.MutedStory, error) {
-    rows, err := r.db.QueryContext(ctx, `SELECT m.story_id, s.title
+	rows, err := r.db.QueryContext(ctx, `SELECT m.story_id, s.title
         FROM story_notification_mutes m
         JOIN stories s ON s.id = m.story_id
         WHERE m.user_id = $1
         ORDER BY m.created_at DESC, m.story_id DESC`, userID)
-    if err != nil { return nil, err }
-    defer rows.Close()
-    items := []domain.MutedStory{}
-    for rows.Next() {
-        var item domain.MutedStory
-        if err := rows.Scan(&item.StoryID, &item.StoryTitle); err != nil { return nil, err }
-        items = append(items, item)
-    }
-    return items, rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []domain.MutedStory{}
+	for rows.Next() {
+		var item domain.MutedStory
+		if err := rows.Scan(&item.StoryID, &item.StoryTitle); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, rows.Err()
 }
 
 // Dismissal changes only this user's inbox; new chapters from the same
 // story will still notify them unless they explicitly mute the story.
 func (r *StoryRepo) DismissNotification(ctx context.Context, userID, chapterID string) error {
-    _, err := r.db.ExecContext(ctx, `DELETE FROM story_notifications
+	_, err := r.db.ExecContext(ctx, `DELETE FROM story_notifications
         WHERE user_id = $1 AND chapter_id = $2`, userID, chapterID)
-    return err
+	return err
 }
 func (r *StoryRepo) ClearNotifications(ctx context.Context, userID string) error {
-    _, err := r.db.ExecContext(ctx, `DELETE FROM story_notifications WHERE user_id = $1`, userID)
-    return err
+	_, err := r.db.ExecContext(ctx, `DELETE FROM story_notifications WHERE user_id = $1`, userID)
+	return err
 }

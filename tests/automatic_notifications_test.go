@@ -180,75 +180,85 @@ func TestAutomaticChapterNotificationsFromReadingAndFavorites(t *testing.T) {
 		t.Fatalf("unmute didn't restore notification: %+v", after)
 	}
 	if got := request("DELETE", "/api/notifications/"+next.ID, nil, nil).Code; got != 401 {
-        t.Fatalf("anonymous dismissal must be rejected: %d", got)
-    }
-    if got := request("DELETE", "/api/notifications", nil, nil).Code; got != 401 {
-        t.Fatalf("anonymous clear must be rejected: %d", got)
-    }
-    // Deletion is always scoped to the authenticated account.
-    if got := request("DELETE", "/api/notifications/"+next.ID, nil, stranger).Code; got != 204 {
-        t.Fatalf("other account deletion returned %d", got)
-    }
-    if got := len(loadInbox(favorite)); got < 1 {
-        t.Fatalf("other user's dismissal affected favorite's alerts")
-    }
-    // Manual cancellation stops all future auto-detected notifications, even if
-    // a user remains interested through reading history, saved stories or follows.
-    if got := request("POST", "/api/notifications/mute/"+story.ID, nil, overlap).Code; got != 204 {
-        t.Fatalf("cancel story alerts: %d", got)
-    }
-    if got := len(loadInbox(overlap)); got != 0 {
-        t.Fatalf("existing alerts were not cancelled: %d", got)
-    }
-    w = request("GET", "/api/notifications/muted/stories", nil, overlap)
-    if w.Code != 200 { t.Fatalf("list cancelled stories: %d", w.Code) }
-    var cancelled struct {
-        Items []domain.MutedStory `json:"items"`
-    }
-    if err := json.Unmarshal(w.Body.Bytes(), &cancelled); err != nil { t.Fatal(err) }
-    if len(cancelled.Items) != 1 || cancelled.Items[0].StoryID != story.ID || cancelled.Items[0].StoryTitle != story.Title {
-        t.Fatalf("muted story is not identifiable in UI: %+v", cancelled)
-    }
-    // Account isolation: nothing is muted for a different reader.
-    w = request("GET", "/api/notifications/muted/stories", nil, favorite)
-    if err := json.Unmarshal(w.Body.Bytes(), &cancelled); err != nil { t.Fatal(err) }
-    if len(cancelled.Items) != 0 { t.Fatal("another account can see muted stories") }
+		t.Fatalf("anonymous dismissal must be rejected: %d", got)
+	}
+	if got := request("DELETE", "/api/notifications", nil, nil).Code; got != 401 {
+		t.Fatalf("anonymous clear must be rejected: %d", got)
+	}
+	// Deletion is always scoped to the authenticated account.
+	if got := request("DELETE", "/api/notifications/"+next.ID, nil, stranger).Code; got != 204 {
+		t.Fatalf("other account deletion returned %d", got)
+	}
+	if got := len(loadInbox(favorite)); got < 1 {
+		t.Fatalf("other user's dismissal affected favorite's alerts")
+	}
+	// Manual cancellation stops all future auto-detected notifications, even if
+	// a user remains interested through reading history, saved stories or follows.
+	if got := request("POST", "/api/notifications/mute/"+story.ID, nil, overlap).Code; got != 204 {
+		t.Fatalf("cancel story alerts: %d", got)
+	}
+	if got := len(loadInbox(overlap)); got != 0 {
+		t.Fatalf("existing alerts were not cancelled: %d", got)
+	}
+	w = request("GET", "/api/notifications/muted/stories", nil, overlap)
+	if w.Code != 200 {
+		t.Fatalf("list cancelled stories: %d", w.Code)
+	}
+	var cancelled struct {
+		Items []domain.MutedStory `json:"items"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &cancelled); err != nil {
+		t.Fatal(err)
+	}
+	if len(cancelled.Items) != 1 || cancelled.Items[0].StoryID != story.ID || cancelled.Items[0].StoryTitle != story.Title {
+		t.Fatalf("muted story is not identifiable in UI: %+v", cancelled)
+	}
+	// Account isolation: nothing is muted for a different reader.
+	w = request("GET", "/api/notifications/muted/stories", nil, favorite)
+	if err := json.Unmarshal(w.Body.Bytes(), &cancelled); err != nil {
+		t.Fatal(err)
+	}
+	if len(cancelled.Items) != 0 {
+		t.Fatal("another account can see muted stories")
+	}
 
-    ignored := newChapter("Chương 6", "<p>Chương 6</p>")
-    if inbox := loadInbox(overlap); len(inbox) != 0 {
-        t.Fatalf("cancelled story generated new notification: %+v", inbox)
-    }
-    favoriteInbox := loadInbox(favorite)
-    if len(favoriteInbox) < 1 || favoriteInbox[0].ChapterID != ignored.ID {
-        t.Fatal("manual cancellation incorrectly blocked another account")
-    }
+	ignored := newChapter("Chương 6", "<p>Chương 6</p>")
+	if inbox := loadInbox(overlap); len(inbox) != 0 {
+		t.Fatalf("cancelled story generated new notification: %+v", inbox)
+	}
+	favoriteInbox := loadInbox(favorite)
+	if len(favoriteInbox) < 1 || favoriteInbox[0].ChapterID != ignored.ID {
+		t.Fatal("manual cancellation incorrectly blocked another account")
+	}
 
-    // A single dismissal removes only one notification and does not create a mute.
-    if got := request("DELETE", "/api/notifications/"+ignored.ID, nil, favorite).Code; got != 204 {
-        t.Fatalf("dismiss selected notification: %d", got)
-    }
-    if got := request("DELETE", "/api/notifications/"+ignored.ID, nil, favorite).Code; got != 204 {
-        t.Fatalf("repeated dismissal must be idempotent: %d", got)
-    }
-    if inbox := loadInbox(favorite); len(inbox) == 0 || inbox[0].ChapterID == ignored.ID {
-        t.Fatalf("dismissed item still in inbox or deleted all: %+v", inbox)
-    }
-    // Clear the inbox but keep its interest signals unchanged.
-    if got := request("DELETE", "/api/notifications", nil, favorite).Code; got != 204 {
-        t.Fatalf("clear inbox: %d", got)
-    }
-    if len(loadInbox(favorite)) != 0 { t.Fatal("clear did not empty inbox") }
-    nextAfterClear := newChapter("Chương 7", "<p>Nội dung 7</p>")
-    if inbox := loadInbox(favorite); len(inbox) != 1 || inbox[0].ChapterID != nextAfterClear.ID {
-        t.Fatalf("clear incorrectly muted future notifications: %+v", inbox)
-    }
-    if got := request("DELETE", "/api/notifications/mute/"+story.ID, nil, overlap).Code; got != 204 {
-        t.Fatalf("re-enable alerts: %d", got)
-    }
-    restored := newChapter("Chương 8", "<p>Nội dung 8</p>")
-    if inbox := loadInbox(overlap); len(inbox) != 1 || inbox[0].ChapterID != restored.ID {
-        t.Fatalf("re-enable did not restore future only: %+v", inbox)
-    }
+	// A single dismissal removes only one notification and does not create a mute.
+	if got := request("DELETE", "/api/notifications/"+ignored.ID, nil, favorite).Code; got != 204 {
+		t.Fatalf("dismiss selected notification: %d", got)
+	}
+	if got := request("DELETE", "/api/notifications/"+ignored.ID, nil, favorite).Code; got != 204 {
+		t.Fatalf("repeated dismissal must be idempotent: %d", got)
+	}
+	if inbox := loadInbox(favorite); len(inbox) == 0 || inbox[0].ChapterID == ignored.ID {
+		t.Fatalf("dismissed item still in inbox or deleted all: %+v", inbox)
+	}
+	// Clear the inbox but keep its interest signals unchanged.
+	if got := request("DELETE", "/api/notifications", nil, favorite).Code; got != 204 {
+		t.Fatalf("clear inbox: %d", got)
+	}
+	if len(loadInbox(favorite)) != 0 {
+		t.Fatal("clear did not empty inbox")
+	}
+	nextAfterClear := newChapter("Chương 7", "<p>Nội dung 7</p>")
+	if inbox := loadInbox(favorite); len(inbox) != 1 || inbox[0].ChapterID != nextAfterClear.ID {
+		t.Fatalf("clear incorrectly muted future notifications: %+v", inbox)
+	}
+	if got := request("DELETE", "/api/notifications/mute/"+story.ID, nil, overlap).Code; got != 204 {
+		t.Fatalf("re-enable alerts: %d", got)
+	}
+	restored := newChapter("Chương 8", "<p>Nội dung 8</p>")
+	if inbox := loadInbox(overlap); len(inbox) != 1 || inbox[0].ChapterID != restored.ID {
+		t.Fatalf("re-enable did not restore future only: %+v", inbox)
+	}
 }
 
 func ptrString(s string) *string { return &s }

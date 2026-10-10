@@ -222,25 +222,36 @@ func (h *StoryHandler) UnmuteNotifications(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *StoryHandler) MutedStoryList(w http.ResponseWriter, r *http.Request) {
-    userID, ok := socialUser(w, r)
-    if !ok { return }
-    items, err := h.storyService.ListMutedStories(r.Context(), userID)
-    if err != nil { RespondError(w, http.StatusInternalServerError, "Không thể tải danh sách đã chặn"); return }
-    RespondJSON(w, http.StatusOK, map[string]any{"items": items})
+	userID, ok := socialUser(w, r)
+	if !ok {
+		return
+	}
+	items, err := h.storyService.ListMutedStories(r.Context(), userID)
+	if err != nil {
+		RespondError(w, http.StatusInternalServerError, "Không thể tải danh sách đã chặn")
+		return
+	}
+	RespondJSON(w, http.StatusOK, map[string]any{"items": items})
 }
 func (h *StoryHandler) DismissNotification(w http.ResponseWriter, r *http.Request) {
-    userID, ok := socialUser(w, r)
-    if !ok { return }
-    if err := h.storyService.DismissNotification(r.Context(), userID, chi.URLParam(r, "id")); err != nil {
-        RespondError(w, http.StatusInternalServerError, "Không thể xóa thông báo"); return
-    }
-    w.WriteHeader(http.StatusNoContent)
+	userID, ok := socialUser(w, r)
+	if !ok {
+		return
+	}
+	if err := h.storyService.DismissNotification(r.Context(), userID, chi.URLParam(r, "id")); err != nil {
+		RespondError(w, http.StatusInternalServerError, "Không thể xóa thông báo")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 func (h *StoryHandler) ClearNotifications(w http.ResponseWriter, r *http.Request) {
-    userID, ok := socialUser(w, r)
-    if !ok { return }
-    if err := h.storyService.ClearNotifications(r.Context(), userID); err != nil {
-        RespondError(w, http.StatusInternalServerError, "Không thể xóa tất cả thông báo"); return
-    }
-    w.WriteHeader(http.StatusNoContent)
+	userID, ok := socialUser(w, r)
+	if !ok {
+		return
+	}
+	if err := h.storyService.ClearNotifications(r.Context(), userID); err != nil {
+		RespondError(w, http.StatusInternalServerError, "Không thể xóa tất cả thông báo")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
