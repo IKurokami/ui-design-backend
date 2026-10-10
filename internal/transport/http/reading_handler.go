@@ -13,9 +13,15 @@ import (
 // A reader may never inspect or persist progress for another author's draft.
 func (h *StoryHandler) mayReadProgress(w http.ResponseWriter, r *http.Request) bool {
 	user, ok := middleware.GetUserFromContext(r.Context())
-	if !ok { RespondError(w, http.StatusUnauthorized, "Chưa đăng nhập"); return false }
+	if !ok {
+		RespondError(w, http.StatusUnauthorized, "Chưa đăng nhập")
+		return false
+	}
 	story, err := h.storyService.GetStory(r.Context(), chi.URLParam(r, "id"))
-	if err != nil { RespondError(w, http.StatusNotFound, "Không tìm thấy truyện"); return false }
+	if err != nil {
+		RespondError(w, http.StatusNotFound, "Không tìm thấy truyện")
+		return false
+	}
 	if story.Status != "published" && story.Status != "completed" && story.UserID != user.ID && !user.Role.IsStaff() {
 		RespondError(w, http.StatusNotFound, "Không tìm thấy truyện")
 		return false
@@ -24,7 +30,9 @@ func (h *StoryHandler) mayReadProgress(w http.ResponseWriter, r *http.Request) b
 }
 
 func (h *StoryHandler) GetReadingProgress(w http.ResponseWriter, r *http.Request) {
-	if !h.mayReadProgress(w, r) { return }
+	if !h.mayReadProgress(w, r) {
+		return
+	}
 	w.Header().Set("Cache-Control", "private, no-store")
 	user, ok := middleware.GetUserFromContext(r.Context())
 	if !ok {
@@ -40,7 +48,9 @@ func (h *StoryHandler) GetReadingProgress(w http.ResponseWriter, r *http.Request
 }
 
 func (h *StoryHandler) SaveReadingProgress(w http.ResponseWriter, r *http.Request) {
-	if !h.mayReadProgress(w, r) { return }
+	if !h.mayReadProgress(w, r) {
+		return
+	}
 	user, ok := middleware.GetUserFromContext(r.Context())
 	if !ok {
 		RespondError(w, http.StatusUnauthorized, "Chưa xác thực")
