@@ -363,3 +363,13 @@ func (s *StoryService) MuteStoryNotifications(ctx context.Context, userID, story
 func (s *StoryService) UnmuteStoryNotifications(ctx context.Context, userID, storyID string) error {
 	return s.repo.UnmuteStoryNotifications(ctx, userID, storyID)
 }
+
+func (s *StoryService) ListMutedStories(ctx context.Context, userID string) ([]domain.MutedStory, error) {
+    return s.repo.ListMutedStories(ctx, userID)
+}
+func (s *StoryService) DismissNotification(ctx context.Context, userID, chapterID string) error {
+    return s.repo.DismissNotification(ctx, userID, chapterID)
+}
+func (s *StoryService) ClearNotifications(ctx context.Context, userID string) error {
+    return s.repo.ClearNotifications(ctx, userID)
+}
