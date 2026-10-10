@@ -93,6 +93,15 @@ func TestCatalogSearchFavoritesAndDraftProtection(t *testing.T) {
 		}
 	}
 
+	// Draft reading metadata is private too, including progress writes.
+	privateProgress := "/api/stories/" + draft.ID + "/reading-progress"
+	if got := request("GET", privateProgress, nil, reader).Code; got != 404 {
+		t.Fatalf("reader can access another author's draft progress: %d", got)
+	}
+	if got := request("PUT", privateProgress, map[string]string{"chapterId": secretChapter.ID}, reader).Code; got != 404 {
+		t.Fatalf("reader can persist progress for a private draft: %d", got)
+	}
+
 	search := func(query string) []domain.Story {
 		w := request("GET", "/api/stories?paginated=true&page=1&pageSize=1&q="+url.QueryEscape(query), nil, reader)
 		if w.Code != 200 {
