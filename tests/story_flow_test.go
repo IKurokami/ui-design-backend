@@ -53,7 +53,7 @@ func setupStoryTestServer(t *testing.T) (http.Handler, string, func()) {
 	storyService := service.NewStoryService(storyRepo)
 
 	authMW := middleware.NewAuthMiddleware(cfg, tokenService, authService)
-	authHandler := transporthttp.NewAuthHandler(authService, authMW)
+	authHandler := transporthttp.NewAuthHandler(authService, authMW, transporthttp.NewAdminHandler(service.NewManagementService(userRepo, storyService)))
 	profileHandler := transporthttp.NewProfileHandler(profileService, cfg.UploadDir)
 	storyHandler := transporthttp.NewStoryHandler(storyService)
 

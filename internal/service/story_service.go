@@ -322,3 +322,34 @@ func (s *StoryService) RemoveFavorite(ctx context.Context, userID, storyID strin
 func (s *StoryService) ListPage(ctx context.Context, userID, readerID string, page, pageSize int) ([]*domain.Story, error) {
 	return s.repo.ListPage(ctx, userID, readerID, page, pageSize)
 }
+
+func (s *StoryService) FollowIDs(ctx context.Context, userID string) ([]string, error) {
+	return s.repo.FollowIDs(ctx, userID)
+}
+func (s *StoryService) Follow(ctx context.Context, userID, storyID string) (bool, error) {
+	return s.repo.Follow(ctx, userID, storyID)
+}
+func (s *StoryService) Unfollow(ctx context.Context, userID, storyID string) error {
+	return s.repo.Unfollow(ctx, userID, storyID)
+}
+func (s *StoryService) ListNotifications(ctx context.Context, userID string, limit int) ([]domain.StoryNotification, error) {
+	return s.repo.ListNotifications(ctx, userID, limit)
+}
+func (s *StoryService) MarkNotificationRead(ctx context.Context, userID, chapterID string) error {
+	return s.repo.MarkNotificationRead(ctx, userID, chapterID)
+}
+func (s *StoryService) ListComments(ctx context.Context, storyID, userID string) ([]domain.StoryComment, error) {
+	return s.repo.ListComments(ctx, storyID, userID)
+}
+func (s *StoryService) CreateComment(ctx context.Context, storyID, userID, body string) (*domain.StoryComment, error) {
+	return s.repo.CreateComment(ctx, storyID, userID, body)
+}
+func (s *StoryService) DeleteComment(ctx context.Context, userID, commentID string) error {
+	return s.repo.DeleteComment(ctx, userID, commentID)
+}
+func (s *StoryService) ListPendingComments(ctx context.Context, limit int) ([]domain.StoryComment, error) {
+	return s.repo.ListPendingComments(ctx, limit)
+}
+func (s *StoryService) ModerateComment(ctx context.Context, id, status string) error {
+	return s.repo.ModerateComment(ctx, id, status)
+}
