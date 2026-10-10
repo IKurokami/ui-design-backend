@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
+	"time"
 
 	"ui-design-backend/internal/domain"
 )
@@ -150,12 +152,18 @@ func (r *StoryRepo) ListPage(ctx context.Context, userID, readerID string, page,
 	if pageSize > 60 {
 		pageSize = 60
 	}
-	return r.listStoriesPage(ctx, userID, readerID, page, pageSize)
+	return r.listStoriesPage(ctx, userID, readerID, page, pageSize, "")
+}
+func (r *StoryRepo) SearchPage(ctx context.Context, query string, page, pageSize int) ([]*domain.Story, error) {
+	if page < 1 { page = 1 }
+	if pageSize < 1 { pageSize = 24 }
+	if pageSize > 60 { pageSize = 60 }
+	return r.listStoriesPage(ctx, "", "", page, pageSize, query)
 }
 func (r *StoryRepo) listStories(ctx context.Context, userID, readerID string) ([]*domain.Story, error) {
-	return r.listStoriesPage(ctx, userID, readerID, 0, 0)
+	return r.listStoriesPage(ctx, userID, readerID, 0, 0, "")
 }
-func (r *StoryRepo) listStoriesPage(ctx context.Context, userID, readerID string, page, pageSize int) ([]*domain.Story, error) {
+func (r *StoryRepo) listStoriesPage(ctx context.Context, userID, readerID string, page, pageSize int, searchTerm string) ([]*domain.Story, error) {
 	query := `SELECT s.id, s.user_id, COALESCE(u.display_name, ''), s.title, s.description, s.cover_url, s.category, s.tags, s.status, s.created_at, s.updated_at,
  (SELECT COUNT(*) FROM chapters c WHERE c.story_id = s.id) AS chapter_count`
 	if readerID != "" {
@@ -177,6 +185,11 @@ func (r *StoryRepo) listStoriesPage(ctx context.Context, userID, readerID string
 		args = append(args, userID)
 	} else {
 		query += ` WHERE s.status IN ('published', 'completed') AND (SELECT COUNT(*) FROM chapters c WHERE c.story_id = s.id AND c.has_content = 1) > 1`
+		if term := strings.TrimSpace(searchTerm); term != "" {
+			// Parameterized search across the entire catalog, before LIMIT/OFFSET.
+			query += ` AND (LOWER(s.title) LIKE LOWER($1) OR LOWER(COALESCE(u.display_name,'')) LIKE LOWER($1) OR LOWER(COALESCE(s.category,'')) LIKE LOWER($1) OR LOWER(COALESCE(s.tags,'')) LIKE LOWER($1))`
+			args = append(args, "%" + term + "%")
+		}
 	}
 	if readerID == "" {
 		query += " ORDER BY s.updated_at DESC, s.created_at DESC"
