@@ -157,7 +157,9 @@ func (db *DB) migrate() error {
 	);
 	CREATE INDEX IF NOT EXISTS idx_favorite_stories_user_time ON favorite_stories(user_id, created_at DESC);`)
 
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS story_follows (
 		user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 		story_id VARCHAR(64) NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
