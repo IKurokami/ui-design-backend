@@ -197,9 +197,13 @@ func (h *StoryHandler) GetStory(w http.ResponseWriter, r *http.Request) {
 	story, err := h.storyService.GetStory(r.Context(), id)
 	if err == nil {
 		user, ok := middleware.GetUserFromContext(r.Context())
-		if !ok { RespondError(w, http.StatusUnauthorized, "Chưa đăng nhập"); return }
+		if !ok {
+			RespondError(w, http.StatusUnauthorized, "Chưa đăng nhập")
+			return
+		}
 		if story.Status != "published" && story.Status != "completed" && story.UserID != user.ID && !user.Role.IsStaff() {
-			RespondError(w, http.StatusNotFound, "Không tìm thấy truyện"); return
+			RespondError(w, http.StatusNotFound, "Không tìm thấy truyện")
+			return
 		}
 	}
 	if err != nil {
@@ -345,11 +349,18 @@ func (h *StoryHandler) GetChapter(w http.ResponseWriter, r *http.Request) {
 	chapter, err := h.storyService.GetChapter(r.Context(), id)
 	if err == nil {
 		user, ok := middleware.GetUserFromContext(r.Context())
-		if !ok { RespondError(w, http.StatusUnauthorized, "Chưa đăng nhập"); return }
+		if !ok {
+			RespondError(w, http.StatusUnauthorized, "Chưa đăng nhập")
+			return
+		}
 		story, storyErr := h.storyService.GetStory(r.Context(), chapter.StoryID)
-		if storyErr != nil { RespondError(w, http.StatusNotFound, "Không tìm thấy chương"); return }
+		if storyErr != nil {
+			RespondError(w, http.StatusNotFound, "Không tìm thấy chương")
+			return
+		}
 		if story.Status != "published" && story.Status != "completed" && story.UserID != user.ID && !user.Role.IsStaff() {
-			RespondError(w, http.StatusNotFound, "Không tìm thấy chương"); return
+			RespondError(w, http.StatusNotFound, "Không tìm thấy chương")
+			return
 		}
 	}
 	if err != nil {

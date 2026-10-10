@@ -146,7 +146,9 @@ func (db *DB) migrate() error {
 	if err := db.migrateChapterOnly(); err != nil {
 		return err
 	}
-	if err := db.migrateEbooks(); err != nil { return err }
+	if err := db.migrateEbooks(); err != nil {
+		return err
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS favorite_stories (
 		user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 		story_id VARCHAR(64) NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
