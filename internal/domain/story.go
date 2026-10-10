@@ -67,6 +67,7 @@ type UpdateChapterDTO struct {
 }
 
 type StoryRepository interface {
+	SocialRepository
 	GetReadingProgress(ctx context.Context, userID, storyID string) (*ReadingProgress, error)
 	SaveReadingProgress(ctx context.Context, userID, storyID, chapterID string) error
 	CreateStory(ctx context.Context, story *Story) error
