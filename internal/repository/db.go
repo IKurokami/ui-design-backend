@@ -177,6 +177,12 @@ func (db *DB) migrate() error {
 		PRIMARY KEY (user_id, chapter_id)
 	);
 	CREATE INDEX IF NOT EXISTS idx_story_notifications_user ON story_notifications(user_id, created_at DESC);
+	CREATE TABLE IF NOT EXISTS story_notification_mutes (
+		user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		story_id VARCHAR(64) NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+		created_at TIMESTAMP NOT NULL,
+		PRIMARY KEY (user_id, story_id)
+	);
 	CREATE TABLE IF NOT EXISTS story_comments (
 		id VARCHAR(64) PRIMARY KEY,
 		story_id VARCHAR(64) NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
