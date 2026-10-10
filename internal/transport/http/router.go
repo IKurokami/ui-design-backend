@@ -108,10 +108,9 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 	if storyHandler != nil {
 		r.Route("/api/stories", func(r chi.Router) {
 			if authMW != nil {
-				r.With(authMW.OptionalAuth).Get("/", storyHandler.ListStories)
-			} else {
-				r.Get("/", storyHandler.ListStories)
+				r.Use(authMW.RequireAuth)
 			}
+			r.Get("/", storyHandler.ListStories)
 
 			r.Group(func(r chi.Router) {
 				if authMW != nil {
@@ -130,6 +129,9 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 		})
 
 		r.Route("/api/chapters", func(r chi.Router) {
+			if authMW != nil {
+				r.Use(authMW.RequireAuth)
+			}
 			r.Get("/{id}", storyHandler.GetChapter)
 
 			r.Group(func(r chi.Router) {
@@ -139,6 +141,18 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 				r.Put("/{id}", storyHandler.UpdateChapter)
 				r.Delete("/{id}", storyHandler.DeleteChapter)
 			})
+		})
+	}
+
+	if storyHandler != nil {
+		r.Route("/api/favorites", func(r chi.Router) {
+			if authMW != nil {
+				r.Use(authMW.RequireAuth)
+			}
+			r.Get("/", storyHandler.ListFavorites)
+			r.Get("/ids", storyHandler.GetFavoriteIDs)
+			r.Post("/{id}", storyHandler.AddFavorite)
+			r.Delete("/{id}", storyHandler.DeleteFavorite)
 		})
 	}
 

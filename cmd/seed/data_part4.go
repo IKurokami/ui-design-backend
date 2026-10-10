@@ -15,8 +15,8 @@ func getStoriesPart4() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -2),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Tiếng chuông nơi thánh điện hoa trắng",
+					Number:        1,
+					Title:         "Chương 1: Tiếng chuông nơi thánh điện hoa trắng",
 					Illustrations: []string{"/mock-images/ln_12.png"},
 					Content: `<p>Khi tia nắng ban mai đầu tiên chiếu rọi qua vòm kính màu của Thánh Điện Vị Hoa, hàng ngàn đóa hoa thủy tinh nở rộ đồng loạt, phát ra những thanh âm trong trẻo tựa chuông gió thiên đình.</p>
 <p>Thiếu nữ đứng giữa tâm điện khẽ vươn đôi cánh lông vũ hồng phấn. Đôi mắt nàng đọng lại ánh sao của kỷ nguyên trước:</p>
@@ -24,8 +24,8 @@ func getStoriesPart4() []StorySeed {
 <p>Dưới chân tháp ngọc, các kỵ sĩ dòng Đền đang quỳ rạp, thành kính dâng lên thanh gươm ánh sáng thiêng liêng.</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Cánh chim xé toạc tầng mây",
+					Number:        2,
+					Title:         "Chương 2: Cánh chim xé toạc tầng mây",
 					Illustrations: []string{"/mock-images/ln_13.jpg"},
 					Content: `<p>Cơn bão ma lực từ Vực Thẳm Đen bất ngờ ập đến, xé toạc bầu trời thanh bình phía trên lãnh địa. Những sinh vật hắc ám gầm rú lao xuống từ khe nứt không gian.</p>
 <p>Không hề nao núng, thánh nữ vỗ cánh bay vút lên bầu trời cao vạn trượng. Đôi tay nàng vẽ nên trận đồ quang minh khổng lồ, thanh tẩy toàn bộ tà khí chỉ trong một cái chớp mắt.</p>`,
@@ -43,16 +43,16 @@ func getStoriesPart4() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -5),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Nụ cười nửa miệng trong buổi khảo hạch",
+					Number:        1,
+					Title:         "Chương 1: Nụ cười nửa miệng trong buổi khảo hạch",
 					Illustrations: []string{"/mock-images/ln_1.png"},
 					Content: `<p>Giáo sư William luôn xuất hiện với một nụ cười hòa nhã trên môi, cặp kính gọng vàng che giấu đi sự sắc sảo tột cùng trong ánh mắt. Trong buổi khảo hạch đầu năm của Viện Pháp Thuật Hoàng Gia, ngài đặt lên bàn một chiếc hộp sắt rỉ sét:</p>
 <p>— "Ai có thể mở chiếc hộp này trong vòng năm phút mà không dùng ma lực, người đó sẽ trở thành đệ tử chân truyền của ta."</p>
 <p>Tất cả các học viên thiên tài đều dùng đủ mọi ma thuật bạo lực nhưng chiếc hộp không hề suy chuyển. Cho đến khi một học viên vô danh bước lên và nhận ra chiếc chìa khóa thực chất đã được vị giáo sư giấu ngay trong chiếc nhẫn bạc ngài đang đeo.</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Cuốn sổ tay bọc da cổ tự",
+					Number:        2,
+					Title:         "Chương 2: Cuốn sổ tay bọc da cổ tự",
 					Illustrations: []string{"/mock-images/ln_22.jpg"},
 					Content: `<p>Đêm khuya tại phòng làm việc riêng, ánh nến lung linh hắt bóng giáo sư William lên kệ sách ngập tràn tài liệu cấm kỵ. Ngài mở cuốn sổ tay bọc da rồng cổ xưa, những dòng chữ ma pháp màu huyết sắc hiện lên:</p>
 <p>— "Bàn cờ đã được sắp đặt. Hoàng tộc và Giáo hội... hãy xem ai sẽ là kẻ ngã xuống trước."</p>`,
@@ -70,8 +70,8 @@ func getStoriesPart4() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -8),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Thu nhận tên đồ đệ phế vật đầu tiên",
+					Number:        1,
+					Title:         "Chương 1: Thu nhận tên đồ đệ phế vật đầu tiên",
 					Illustrations: []string{"/mock-images/ln_2.png"},
 					Content: `<p>Lâm Bắc nằm dài trên ghế đu tre, tay phe phẩy chiếc quạt nan rách, miệng ngậm cọng cỏ nhìn tên thiếu niên đang quỳ gối dập đầu trước cổng viện:</p>
 <p>— "Sư phụ! Đan điền của con bị vỡ, kinh mạch tắc nghẽn, ba đại môn phái đều đuổi con ra ngoài! Xin sư phụ rủ lòng từ bi thu nhận con!"</p>
@@ -80,8 +80,8 @@ func getStoriesPart4() []StorySeed {
 <p>Tên đồ đệ ngơ ngác, không hề hay biết rằng mỗi nhát xẻng xới xuống đều đang vô tình khai mở ba mươi sáu đại huyệt đạo chí tôn!</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Đạp nát sơn môn đối thủ chỉ bằng một chiếc dép",
+					Number:        2,
+					Title:         "Chương 2: Đạp nát sơn môn đối thủ chỉ bằng một chiếc dép",
 					Illustrations: []string{"/mock-images/ln_11.png"},
 					Content: `<p>Khi Chưởng môn Thanh Vân Tông kéo hàng trăm đệ tử tinh anh đến đòi san bằng ngọn núi của Lâm Bắc, vị lão sư lười biếng chỉ bực bội vì bị phá hỏng giấc ngủ trưa.</p>
 <p>Cởi chiếc dép rơm dưới chân, hắn nhẹ nhàng quăng ra một cái. Chiếc dép xé gió bay vút, hóa thành một quả núi khổng lồ đập tan trận pháp hộ tông của đối thủ thành tro bụi trong tiếng kinh hoàng bạt vía của bách tính xung quanh.</p>`,
@@ -99,8 +99,8 @@ func getStoriesPart4() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -12),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Giọt sương mai trên cánh hoa bách hợp",
+					Number:        1,
+					Title:         "Chương 1: Giọt sương mai trên cánh hoa bách hợp",
 					Illustrations: []string{"/mock-images/ln_3.jpg"},
 					Content: `<p>Khu vườn bí mật phía sau nhà kính thực vật của trường nữ sinh Thánh Á luôn ngập tràn mùi hương ngọt ngào của những đóa bách hợp trắng muốt.</p>
 <p>An và Chi tình cờ gặp nhau vào một buổi chiều mưa rào bất chợt. Dưới mái hiên kính đọng đầy những hạt nước trong veo, giai điệu đàn violin du dương đã kết nối hai trái tim cô đơn tìm về bến đỗ bình yên.</p>`,
@@ -118,8 +118,8 @@ func getStoriesPart4() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -14),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Cơn mưa cánh hoa đầu mùa",
+					Number:        1,
+					Title:         "Chương 1: Cơn mưa cánh hoa đầu mùa",
 					Illustrations: []string{"/mock-images/ln_10.png"},
 					Content: `<p>Con đường dốc dẫn lên trường trung học ngập tràn sắc hồng phớt của hoa anh đào vào ngày đầu tiên của năm học mới. Gió thổi tung những cánh hoa lướt qua tà áo đồng phục tinh khôi.</p>
 <p>Một cú va chạm bất ngờ ở ngã rẽ khiến cả chồng sách vở rơi tung tóe. Khi ngẩng đầu lên, ánh mắt hai người chạm nhau, một cảm giác xao xuyến lạ kỳ bỗng chốc đọng lại mãi trong ký ức thanh xuân tươi đẹp.</p>`,
@@ -137,8 +137,8 @@ func getStoriesPart4() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -17),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Xiềng xích phong ấn vỡ vụn",
+					Number:        1,
+					Title:         "Chương 1: Xiềng xích phong ấn vỡ vụn",
 					Illustrations: []string{"/mock-images/ln_7.png"},
 					Content: `<p>Dưới đáy sâu của lăng mộ ngàn năm, nơi không một tia sáng mặt trời nào có thể chạm tới, cỗ quan tài bằng đá hắc diệp thạch bỗng rung chuyển dữ dội.</p>
 <p>Những sợi xích ma pháp khắc ấn cổ tự lần lượt đứt gãy với tiếng nổ vang rền như sấm sét. Nắp quan tài bật tung, một đôi mắt đỏ thẫm rực sáng trong bóng đêm đặc quánh:</p>

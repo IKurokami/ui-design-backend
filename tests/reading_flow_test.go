@@ -66,7 +66,7 @@ func TestReadingProgressAndPublicLibrary(t *testing.T) {
 		return ch
 	}
 	list := func() []domain.Story {
-		w := request("GET", "/api/stories", nil, nil)
+		w := request("GET", "/api/stories", nil, reader)
 		if w.Code != 200 {
 			t.Fatal(w.Body.String())
 		}

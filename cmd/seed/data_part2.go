@@ -15,8 +15,8 @@ func getStoriesPart2() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -30),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Lời nguyền hoàng tử sơ sinh",
+					Number:        1,
+					Title:         "Chương 1: Lời nguyền hoàng tử sơ sinh",
 					Illustrations: []string{"/mock-images/ln_37.jpg", "/mock-images/ln_6.png"},
 					Content: `<p>Hậu cung của Hoàng đế là một chiếc lồng son tráng lệ nhưng nồng nặc mùi tranh sủng và mưu mô tàn độc. Gần đây, một tin đồn đáng sợ lan truyền như dịch bệnh: những đứa trẻ sơ sinh của các quý phi nương nương lần lượt phát bệnh lạ, da dẻ xanh xao rồi ra đi trong đau đớn.</p>
 <p>Người ta đồn rằng đó là lời nguyền của những linh hồn chết oan trong giếng ngọc.</p>
@@ -25,8 +25,8 @@ func getStoriesPart2() []StorySeed {
 <p>Biết rằng nếu can thiệp vào chuyện hoàng tộc, một cung nữ thấp kém như mình sẽ dễ bị chặt đầu bịt miệng, Maomao quyết định viết một mảnh giấy cảnh báo giấu tên, kẹp vào cành hoa mẫu đơn đặt trước cửa cung của Lệ phi.</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Ánh mắt hồ ly của Tổng quản Nhâm Thị",
+					Number:        2,
+					Title:         "Chương 2: Ánh mắt hồ ly của Tổng quản Nhâm Thị",
 					Illustrations: []string{"/mock-images/ln_38.jpg"},
 					Content: `<p>Mảnh giấy cảnh báo đã cứu sống tiểu thái tử của Lệ phi, nhưng nó cũng kích hoạt sự tò mò của vị quan giám sát quyền lực nhất Hậu cung – Nhâm Thị (Jinshi).</p>
 <p>Với vẻ ngoài tuấn tú phi phàm, làn da mịn như ngọc và nụ cười quyến rũ có thể làm khuynh đảo cả nam lẫn nữ, Nhâm Thị triệu tập toàn bộ cung nữ nghi vấn để kiểm tra chữ viết.</p>
@@ -35,8 +35,8 @@ func getStoriesPart2() []StorySeed {
 <p>— "Dạ... nông nữ xin tuân mệnh..." – Maomao ngoài mặt cung kính cúi đầu, nhưng trong lòng đang gào thét vì kế hoạch sống ẩn dật yên bình đã tan tành mây khói.</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Bữa tiệc hoa viên và chén súp nấm độc",
+					Number:        3,
+					Title:         "Chương 3: Bữa tiệc hoa viên và chén súp nấm độc",
 					Illustrations: []string{"/mock-images/ln_39.jpg", "/mock-images/ln_40.jpg"},
 					Content: `<p>Đại tiệc ngắm hoa mùa thu diễn ra rực rỡ với sự tham gia của Hoàng đế và các đại thần. Là người chịu trách nhiệm nếm độc cho Ngọc Diệp nương nương, Maomao đứng nghiêm trang bên cạnh bàn tiệc thịnh soạn.</p>
 <p>Một bát súp cá nấu măng tây bốc khói nghi ngút được đưa lên. Maomao dùng chiếc thìa bạc múc một ngụm nhỏ đưa vào miệng.</p>
@@ -58,8 +58,8 @@ func getStoriesPart2() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -33),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Thân xác đàn hồi trong hang động ngầm",
+					Number:        1,
+					Title:         "Chương 1: Thân xác đàn hồi trong hang động ngầm",
 					Illustrations: []string{"/mock-images/ln_43.jpg", "/mock-images/ln_42.png"},
 					Content: `<p>Cảm giác đầu tiên sau khi chết là không hề có cảm giác đau đớn. Không thấy ánh sáng, không nghe thấy âm thanh, cơ thể mềm nhũn, trơn tuột và đàn hồi như một miếng thạch rau câu.</p>
 <p>— <em>[Báo cáo: Kỹ năng độc nhất "Đại Hiền Giả" (Great Sage) đã được kích hoạt thành công.]</em></p>
@@ -70,8 +70,8 @@ func getStoriesPart2() []StorySeed {
 <p>Đó là Bạo Phong Long Veldora – một trong bốn Long Chủng tối cao của thế giới, kẻ đã bị Dũng Giả phong ấn suốt ba trăm năm trong bức tường kết giới bất khả xâm phạm.</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Lời hứa giữa Slime và Rồng",
+					Number:        2,
+					Title:         "Chương 2: Lời hứa giữa Slime và Rồng",
 					Illustrations: []string{"/mock-images/ln_44.png"},
 					Content: `<p>Hai kẻ cô đơn nhanh chóng trở thành bạn thân qua những câu chuyện về thế giới loài người và văn hóa manga/anime mà Rimuru kể lại. Veldora, dù mang danh xưng rồng hủy diệt tàn bạo, thực chất lại là một "chú rồng tsundere" vô cùng dễ dỗ dành.</p>
 <p>— "Ta muốn giải thoát cho cậu, Veldora. Ta sẽ dùng 'Kẻ Thôn Phệ' nuốt trọn cả phong ấn lẫn cậu vào dạ dày ảo vô tận của mình. Trong lúc đó, Đại Hiền Giả sẽ phân tích và phá hủy phong ấn từ bên trong."</p>
@@ -79,8 +79,8 @@ func getStoriesPart2() []StorySeed {
 <p>Và thế là, cái tên "Rimuru Tempest" ra đời. Một con Slime nhỏ bé đã nuốt trọn một con rồng thần thoại vào bụng, rời khỏi hang động ngầm và bước chân ra thế giới rộng lớn bên ngoài.</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Đặt tên cho tộc Goblin khốn cùng",
+					Number:        3,
+					Title:         "Chương 3: Đặt tên cho tộc Goblin khốn cùng",
 					Illustrations: []string{"/mock-images/ln_45.png", "/mock-images/ln_46.png"},
 					Content: `<p>Bước ra khỏi hang động, Rimuru chạm trán với một bộ tộc Goblin rách rưới đang quỳ rạp cầu xin sự che chở trước sự tấn công hung hãn của tộc Nha Lang (Sói Băng Răng Nanh).</p>
 <p>Sau khi dùng kỹ năng tơ thép và lôi kích hạ gục thủ lĩnh bầy sói, Rimuru thu phục cả hai tộc và quyết định làm một việc mà sau này cậu vô cùng hối hận: đặt tên cho từng con quái vật!</p>
@@ -101,8 +101,8 @@ func getStoriesPart2() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -36),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Hồi chuông tử thần tại Quảng trường Khởi nguyên",
+					Number:        1,
+					Title:         "Chương 1: Hồi chuông tử thần tại Quảng trường Khởi nguyên",
 					Illustrations: []string{"/mock-images/ln_48.jpg", "/mock-images/ln_4.png"},
 					Content: `<p>Ngày 6 tháng 11 năm 2022. Mười ngàn người chơi đắm chìm trong vẻ đẹp ngoạn mục của thành phố nổi Aincrad. Nhưng nút "Đăng xuất" (Log Out) trong menu hệ thống đã biến mất không dấu vết.</p>
 <p>Chuông giáo đường vang lên gióng giả. Toàn bộ người chơi bị dịch chuyển cưỡng chế về Quảng trường Khởi nguyên ở Tầng 1. Bầu trời chuyển sang màu đỏ rực như máu, và một bóng ma khổng lồ mặc áo choàng đỏ thẫm hiện ra trên không trung – Kayaba Akihiko, người sáng tạo ra SAO.</p>
@@ -110,8 +110,8 @@ func getStoriesPart2() []StorySeed {
 <p>Tiếng la hét, khóc lóc và hỗn loạn bùng nổ như ong vỡ tổ. Giữa biển người hoảng loạn, Kirito siết chặt thanh đoản kiếm khởi đầu, lập tức lao nhanh ra khỏi cổng thành trước khi quái vật bị săn hết. Cậu hiểu rằng: muốn sống sót, phải trở nên mạnh mẽ hơn bất kỳ ai!</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Lưỡi kiếm bạc và chiếc bánh mì quết kem",
+					Number:        2,
+					Title:         "Chương 2: Lưỡi kiếm bạc và chiếc bánh mì quết kem",
 					Illustrations: []string{"/mock-images/ln_11.png"},
 					Content: `<p>Một tháng sau ngày thảm họa bắt đầu, hai ngàn người chơi đã thiệt mạng mà Tầng 1 vẫn chưa thể khai phá. Trong buổi họp mặt chiến lược tại quảng trường phế tích, Kirito chú ý đến một người chơi trùm kín áo choàng xám ngồi cô độc ở hàng ghế sau.</p>
 <p>Sau buổi họp, Kirito tiến lại gần, đưa cho người đó một chiếc bánh mì đen cứng ngắc:</p>
@@ -120,8 +120,8 @@ func getStoriesPart2() []StorySeed {
 <p>Đó là Asuna – một cô gái ngây thơ chưa từng chơi game, người sau này sẽ trở thành Phó bang chủ của Huyết Minh Kỵ Sĩ Đoàn khét tiếng.</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Quyết đấu Illfang The Kobold Lord",
+					Number:        3,
+					Title:         "Chương 3: Quyết đấu Illfang The Kobold Lord",
 					Illustrations: []string{"/mock-images/ln_49.png", "/mock-images/ln_50.png"},
 					Content: `<p>Căn phòng Boss Tầng 1 tối tăm và ngột ngạt. Tiếng gầm của Illfang làm rung chuyển những cột đá cẩm thạch khổng lồ. Thủ lĩnh đội tiên phong Diabel trúng đòn chí mạng vì sự thay đổi vũ khí bất ngờ của Boss ở giai đoạn cuối.</p>
 <p>— "Tất cả lùi lại! Để tôi và Asuna xử lý!" – Kirito hét lớn.</p>
@@ -141,8 +141,8 @@ func getStoriesPart2() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -39),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Đêm hội thu hoạch ở làng Pasloe",
+					Number:        1,
+					Title:         "Chương 1: Đêm hội thu hoạch ở làng Pasloe",
 					Illustrations: []string{"/mock-images/ln_52.jpg", "/mock-images/ln_3.jpg"},
 					Content: `<p>Hương lúa mạch chín vàng ngập tràn trong gió đêm của làng Pasloe. Sau khi chất đầy các kiện lúa mì lên cỗ xe ngựa của mình, Kraft Lawrence chuẩn bị rời làng để tránh né những lễ nghi ồn ào của ngày hội bội thu.</p>
 <p>Khi kéo tấm bạt phủ che mưa trên thùng xe, Lawrence giật mình đánh thót một cái. Nằm cuộn tròn ấm áp giữa đống rơm khô là một thiếu nữ không một mảnh vải che thân, đôi tai sói màu hạt dẻ khẽ giật giật theo nhịp thở và chiếc đuôi dài phủ lông mềm mại đang đung đưa nhịp nhàng.</p>
@@ -151,16 +151,16 @@ func getStoriesPart2() []StorySeed {
 <p>— "Ta là Holo, Hiền Lang xứ Yoitsu phương Bắc. Đã hàng trăm năm rồi người dân ở đây không còn cần đến ta nữa... Cậu có muốn đưa ta trở về quê hương không, thương nhân tốt bụng?"</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Cơn sốt giá bạc tại thị trấn Pazzio",
+					Number:        2,
+					Title:         "Chương 2: Cơn sốt giá bạc tại thị trấn Pazzio",
 					Illustrations: []string{"/mock-images/ln_53.png"},
 					Content: `<p>Bước vào thị trấn giao thương sầm uất Pazzio, Holo đội một chiếc mũ trùm đầu kín mít để che đi đôi tai sói. Với chiếc mũi cực kỳ thính nhạy và trí tuệ hàng trăm năm của một vị thần, nàng ngửi thấy mùi mưu mô trong từng đồng tiền xu bạc đang lưu hành trên thị trường.</p>
 <p>— "Này Lawrence, đồng Trenni bạc này... hàm lượng bạc nguyên chất của nó đã bị giảm đi so với các đợt phát hành trước đây."</p>
 <p>Lawrence sững sờ. Một âm mưu thao túng tiền tệ quy mô lớn giữa các nghiệp đoàn thương hội và lãnh chúa địa phương đang dần lộ diện. Nếu nắm bắt được thời cơ này, một thương nhân nhỏ bé như anh có thể đổi đời thành triệu phú; nhưng chỉ cần một bước đi sai lầm, tính mạng của cả hai sẽ vùi chôn dưới đáy sông sâu.</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Tiếng hú dưới ánh trăng phương Bắc",
+					Number:        3,
+					Title:         "Chương 3: Tiếng hú dưới ánh trăng phương Bắc",
 					Illustrations: []string{"/mock-images/ln_54.png", "/mock-images/ln_55.png"},
 					Content: `<p>Bị truy sát bởi toán sát thủ của thương hội Medio trong những con ngõ lầy lội, cỗ xe của Lawrence bị dồn vào ngõ cụt. Những mũi giáo sáng loáng chĩa thẳng vào cổ họng anh.</p>
 <p>— "Đứng lùi lại phía sau ta, Lawrence."</p>
@@ -183,8 +183,8 @@ func getStoriesPart2() []StorySeed {
 			CreatedAt:   time.Now().AddDate(0, 0, -42),
 			Chapters: []ChapterSeed{
 				{
-					Number: 1,
-					Title:  "Chương 1: Con cua nặng vỏn vẹn năm kilôgam",
+					Number:        1,
+					Title:         "Chương 1: Con cua nặng vỏn vẹn năm kilôgam",
 					Illustrations: []string{"/mock-images/ln_58.jpg", "/mock-images/ln_57.png"},
 					Content: `<p>Mọi chuyện bắt đầu vào ngày 8 tháng Năm. Khi Araragi Koyomi đang thong thả bước lên cầu thang xoắn ốc của trường trung học Naoetsu, một bóng hình trượt chân và rơi tự do từ tầng ba xuống.</p>
 <p>Koyomi theo phản xạ lao tới đỡ lấy. Cậu chuẩn bị tinh thần chịu đựng một chấn động nặng nề của một cơ thể thiếu nữ rơi từ trên cao.</p>
@@ -194,8 +194,8 @@ func getStoriesPart2() []StorySeed {
 <p>— "Araragi-kun... nếu cậu dám tiết lộ bí mật này cho bất kỳ ai, chiếc bấm kim này sẽ bấm dính lưỡi của cậu vào hàm ếch đấy."</p>`,
 				},
 				{
-					Number: 2,
-					Title:  "Chương 2: Tòa nhà luyện thi bỏ hoang và Oshino Meme",
+					Number:        2,
+					Title:         "Chương 2: Tòa nhà luyện thi bỏ hoang và Oshino Meme",
 					Illustrations: []string{"/mock-images/ln_59.jpg"},
 					Content: `<p>Để cứu giúp Senjougahara thoát khỏi sự dày vò của quái dị, Koyomi dẫn cô đến một tòa nhà trung tâm luyện thi hoang phế cỏ mọc um tùm. Tại đây, trên sàn gỗ bám đầy bụi, một người đàn ông trung niên mặc áo sơ mi Hawaii sặc sỡ đang ngồi xếp bằng hút thuốc lá.</p>
 <p>— "Ồ, có vẻ hôm nay cậu em mang đến một vị khách đặc biệt thú vị nhỉ? Tự hào bản thân tràn trề sức sống ghê ha, Araragi-kun?"</p>
@@ -203,8 +203,8 @@ func getStoriesPart2() []StorySeed {
 <p>— "Thần Trọng Lượng (Omoi-gani) đã lấy đi gánh nặng của cô gái này. Nó không chỉ lấy đi cân nặng thể xác, mà lấy đi cả nỗi đau tinh thần, ký ức bi thương về một gia đình tan vỡ mà cô không muốn nhớ tới. Muốn lấy lại trọng lượng, cô bé phải sẵn sàng gánh vác lại toàn bộ nỗi đau đó."</p>`,
 				},
 				{
-					Number: 3,
-					Title:  "Chương 3: Bầu trời sao và lời hẹn ước đêm mùa hạ",
+					Number:        3,
+					Title:         "Chương 3: Bầu trời sao và lời hẹn ước đêm mùa hạ",
 					Illustrations: []string{"/mock-images/ln_60.jpg", "/mock-images/ln_61.png"},
 					Content: `<p>Sau khi trục xuất thành công con quái vật cua và lấy lại được thân xác trọn vẹn, Senjougahara mời Koyomi đi dã ngoại trên một ngọn đồi ngoại ô bằng chiếc xe cổ của cha mình.</p>
 <p>Trải tấm bạt mỏng trên bãi cỏ dưới bầu trời mùa hạ không một gợn mây, Hitagi nằm ngửa mặt lên nhìn dải ngân hà lấp lánh như dát bạc:</p>
