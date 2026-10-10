@@ -1,0 +1,27 @@
+name: Format cancellation changes once
+on:
+  pull_request:
+    branches: [master]
+permissions:
+  contents: write
+jobs:
+  gofmt:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feat/manual-notification-cancellation-20261010' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Format Go changes
+        run: |
+          gofmt -w internal/domain/social.go internal/service/story_service.go internal/repository/social_repo.go internal/transport/http/social_handler.go internal/transport/http/router.go tests/automatic_notifications_test.go
+          git add internal/domain/social.go internal/service/story_service.go internal/repository/social_repo.go internal/transport/http/social_handler.go internal/transport/http/router.go tests/automatic_notifications_test.go
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'style: gofmt manual cancellation'
+            git push origin HEAD:feat/manual-notification-cancellation-20261010
+          fi
