@@ -304,6 +304,21 @@ func (s *StoryService) SaveReadingProgress(ctx context.Context, userID, storyID,
 func (s *StoryService) ListReadingStories(ctx context.Context, userID string) ([]*domain.Story, error) {
 	return s.repo.ListReadingStories(ctx, userID)
 }
+func (s *StoryService) SearchPage(ctx context.Context, query string, page, pageSize int) ([]*domain.Story, error) {
+	return s.repo.SearchPage(ctx, query, page, pageSize)
+}
+func (s *StoryService) ListFavorites(ctx context.Context, userID string, page, pageSize int) ([]*domain.Story, error) {
+	return s.repo.ListFavorites(ctx, userID, page, pageSize)
+}
+func (s *StoryService) FavoriteIDs(ctx context.Context, userID string) ([]string, error) {
+	return s.repo.FavoriteIDs(ctx, userID)
+}
+func (s *StoryService) SaveFavorite(ctx context.Context, userID, storyID string) (bool, error) {
+	return s.repo.SaveFavorite(ctx, userID, storyID)
+}
+func (s *StoryService) RemoveFavorite(ctx context.Context, userID, storyID string) error {
+	return s.repo.RemoveFavorite(ctx, userID, storyID)
+}
 func (s *StoryService) ListPage(ctx context.Context, userID, readerID string, page, pageSize int) ([]*domain.Story, error) {
 	return s.repo.ListPage(ctx, userID, readerID, page, pageSize)
 }
