@@ -107,7 +107,7 @@ func TestCatalogSearchFavoritesAndDraftProtection(t *testing.T) {
 		}
 		return p.Items
 	}
-	for _, query := range []string{"mặt trăng", "PHIÊU LƯU", "Kỳ Ảo"} {
+	for _, query := range []string{"mặt trăng", "Phiêu Lưu", "Kỳ Ảo"} {
 		got := search(query)
 		if len(got) != 1 || got[0].ID != first.ID {
 			t.Errorf("query %q returned %+v", query, got)
