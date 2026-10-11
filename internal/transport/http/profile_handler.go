@@ -124,17 +124,32 @@ func (h *ProfileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	ext := strings.ToLower(filepath.Ext(header.Filename))
-	allowedExts := map[string]bool{
-		".jpg":  true,
-		".jpeg": true,
-		".png":  true,
-		".webp": true,
-		".gif":  true,
-		".svg":  true,
+	// SVG can contain active JavaScript and is unsafe to host on the same
+	// origin as an authenticated application. Validate bytes, not filenames.
+	allowedTypes := map[string]string{
+		".jpg":  "image/jpeg",
+		".jpeg": "image/jpeg",
+		".png":  "image/png",
+		".webp": "image/webp",
+		".gif":  "image/gif",
 	}
-
-	if !allowedExts[ext] {
-		RespondError(w, http.StatusBadRequest, "Định dạng file không được hỗ trợ. Chỉ chấp nhận các định dạng: JPG, PNG, WEBP, GIF, SVG.")
+	expectedType, supported := allowedTypes[ext]
+	if !supported {
+		RespondError(w, http.StatusBadRequest, "Chỉ chấp nhận ảnh JPG, PNG, WEBP hoặc GIF; không hỗ trợ SVG.")
+		return
+	}
+	var signature [512]byte
+	n, readErr := file.Read(signature[:])
+	if readErr != nil && readErr != io.EOF {
+		RespondError(w, http.StatusBadRequest, "Không thể kiểm tra nội dung tệp.")
+		return
+	}
+	if n == 0 || http.DetectContentType(signature[:n]) != expectedType {
+		RespondError(w, http.StatusBadRequest, "Nội dung tệp không khớp với định dạng ảnh.")
+		return
+	}
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		RespondError(w, http.StatusBadRequest, "Không thể đọc lại ảnh đã tải lên.")
 		return
 	}
 
@@ -154,6 +169,7 @@ func (h *ProfileHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	defer dst.Close()
 
 	if _, err := io.Copy(dst, file); err != nil {
+		_ = os.Remove(targetFilePath)
 		RespondError(w, http.StatusInternalServerError, "Lỗi xảy ra khi ghi file")
 		return
 	}
