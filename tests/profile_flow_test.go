@@ -7,17 +7,14 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"ui-design-backend/internal/domain"
 )
 
 func TestProfileAndUploadFlow(t *testing.T) {
-	router, _, cleanup := setupTestApp(t)
+	router, _, cleanup := setupStoryTestServer(t)
 	defer cleanup()
-	defer os.RemoveAll("./test_uploads")
-	defer os.RemoveAll("./uploads")
 
 	// 1. Register a test user
 	registerBody := `{"displayName":"Designer Pro","email":"designer@example.com","password":"Password123","confirmPassword":"Password123","acceptedTerms":true}`
@@ -200,7 +197,7 @@ func TestProfileAndUploadFlow(t *testing.T) {
 }
 
 func TestRejectActiveOrMisleadingImageUploads(t *testing.T) {
-	router, _, cleanup := setupTestApp(t)
+	router, _, cleanup := setupStoryTestServer(t)
 	defer cleanup()
 	registration := httptest.NewRequest(http.MethodPost, "/api/auth/register", bytes.NewBufferString(
 		`{"displayName":"Image checker","email":"safe-image-check@example.com","password":"Password123","confirmPassword":"Password123","acceptedTerms":true}`))
