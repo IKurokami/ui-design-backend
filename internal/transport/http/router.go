@@ -29,7 +29,8 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 		MaxAge:           300,
 	}))
 
-	// Static file serving for user uploads
+	// Uploaded assets may contain unpublished story illustrations. Never expose
+	// them to anonymous visitors; prevent content-type sniffing as defense in depth.
 	uploadPath := "./uploads"
 	if cfg != nil && cfg.UploadDir != "" {
 		uploadPath = cfg.UploadDir
@@ -37,12 +38,19 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 		uploadPath = profileHandler.UploadDir
 	}
 	uploadsDir := http.Dir(uploadPath)
-	r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(uploadsDir))
-		fs.ServeHTTP(w, r)
-	})
+	if authMW != nil {
+		r.Group(func(r chi.Router) {
+			r.Use(authMW.RequireAuth)
+			r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("X-Content-Type-Options", "nosniff")
+				w.Header().Set("Cache-Control", "private, no-store")
+				rctx := chi.RouteContext(r.Context())
+				pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+				fs := http.StripPrefix(pathPrefix, http.FileServer(uploadsDir))
+				fs.ServeHTTP(w, r)
+			})
+		})
+	}
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		RespondJSON(w, http.StatusOK, map[string]string{"status": "ok"})
@@ -89,15 +97,14 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 	if profileHandler != nil {
 		// Profile endpoints
 		r.Route("/api/profile", func(r chi.Router) {
+			// Profiles are visible only to signed-in readers.
+			if authMW == nil {
+				return
+			}
+			r.Use(authMW.RequireAuth)
+			r.Get("/me", profileHandler.GetMyProfile)
+			r.Put("/me", profileHandler.UpdateMyProfile)
 			r.Get("/{userId}", profileHandler.GetPublicProfile)
-
-			r.Group(func(r chi.Router) {
-				if authMW != nil {
-					r.Use(authMW.RequireAuth)
-				}
-				r.Get("/me", profileHandler.GetMyProfile)
-				r.Put("/me", profileHandler.UpdateMyProfile)
-			})
 		})
 
 		// Upload endpoint (protected)
