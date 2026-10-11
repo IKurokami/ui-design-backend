@@ -128,6 +128,20 @@ func TestAutomaticChapterNotificationsFromReadingAndFavorites(t *testing.T) {
 		}
 		return result.Items
 	}
+	// A different account must not be able to mark another reader's alert as read
+	// or delete it, even when both accounts can guess the chapter ID.
+	if got := request("PUT", "/api/notifications/"+third.ID+"/read", nil, stranger).Code; got != http.StatusNoContent {
+		t.Fatalf("cross-account mark read: %d", got)
+	}
+	if got := request("DELETE", "/api/notifications/"+third.ID, nil, stranger).Code; got != http.StatusNoContent {
+		t.Fatalf("cross-account dismissal: %d", got)
+	}
+	if got := request("PUT", "/api/notifications/"+third.ID+"/read", nil, nil).Code; got != http.StatusUnauthorized {
+		t.Fatalf("anonymous mark read: %d", got)
+	}
+	if got := request("GET", "/api/notifications", nil, nil).Code; got != http.StatusUnauthorized {
+		t.Fatalf("anonymous inbox: %d", got)
+	}
 	for name, user := range map[string]*http.Cookie{
 		"reading history": history, "favorite": favorite, "follow": follower, "all signals": overlap,
 	} {
