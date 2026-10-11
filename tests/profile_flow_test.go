@@ -149,13 +149,19 @@ func TestProfileAndUploadFlow(t *testing.T) {
 		t.Errorf("Expected themeColor %s, got %s", themeColor, updatedProfile.ThemeColor)
 	}
 
-	// 5. Test public profile GET /api/profile/{userId}
+	// 5. Profiles require login, including reads of another member's profile.
 	publicReq := httptest.NewRequest(http.MethodGet, "/api/profile/"+userID, nil)
 	publicRec := httptest.NewRecorder()
 	router.ServeHTTP(publicRec, publicReq)
-
+	if publicRec.Code != http.StatusUnauthorized {
+		t.Fatalf("Anonymous profile request must be 401, got %d", publicRec.Code)
+	}
+	publicReq = httptest.NewRequest(http.MethodGet, "/api/profile/"+userID, nil)
+	publicReq.AddCookie(accessTokenCookie)
+	publicRec = httptest.NewRecorder()
+	router.ServeHTTP(publicRec, publicReq)
 	if publicRec.Code != http.StatusOK {
-		t.Fatalf("Public profile request failed: %d, body: %s", publicRec.Code, publicRec.Body.String())
+		t.Fatalf("Authenticated profile request failed: %d, body: %s", publicRec.Code, publicRec.Body.String())
 	}
 
 	var publicProfile domain.ProfileResponse
@@ -170,16 +176,73 @@ func TestProfileAndUploadFlow(t *testing.T) {
 		t.Errorf("Expected headline %s, got %v", headline, publicProfile.Headline)
 	}
 
-	// 6. Test static file serving: GET /uploads/{filename}
+	// 6. Upload URLs must not disclose assets to logged-out visitors.
 	staticReq := httptest.NewRequest(http.MethodGet, uploadResp.URL, nil)
 	staticRec := httptest.NewRecorder()
 	router.ServeHTTP(staticRec, staticReq)
-
+	if staticRec.Code != http.StatusUnauthorized {
+		t.Fatalf("Anonymous file download must be 401, got %d", staticRec.Code)
+	}
+	staticReq = httptest.NewRequest(http.MethodGet, uploadResp.URL, nil)
+	staticReq.AddCookie(accessTokenCookie)
+	staticRec = httptest.NewRecorder()
+	router.ServeHTTP(staticRec, staticReq)
 	if staticRec.Code != http.StatusOK {
-		t.Fatalf("Static file retrieval failed: status %d", staticRec.Code)
+		t.Fatalf("Authenticated file retrieval failed: status %d", staticRec.Code)
+	}
+	if staticRec.Header().Get("X-Content-Type-Options") != "nosniff" {
+		t.Fatal("Uploaded image responses must disable MIME sniffing")
 	}
 	body, _ := io.ReadAll(staticRec.Body)
 	if len(body) != len(sampleImageBytes) {
 		t.Errorf("Static file content length mismatch: got %d, expected %d", len(body), len(sampleImageBytes))
+	}
+}
+
+func TestRejectActiveOrMisleadingImageUploads(t *testing.T) {
+	router, _, cleanup := setupTestApp(t)
+	defer cleanup()
+	registration := httptest.NewRequest(http.MethodPost, "/api/auth/register", bytes.NewBufferString(
+		`{"displayName":"Image checker","email":"safe-image-check@example.com","password":"Password123","confirmPassword":"Password123","acceptedTerms":true}`))
+	registration.Header.Set("Content-Type", "application/json")
+	rw := httptest.NewRecorder()
+	router.ServeHTTP(rw, registration)
+	if rw.Code != http.StatusOK {
+		t.Fatalf("register: %d %s", rw.Code, rw.Body.String())
+	}
+	var cookie *http.Cookie
+	for _, c := range rw.Result().Cookies() {
+		if c.Name == "access_token" {
+			cookie = c
+		}
+	}
+	if cookie == nil {
+		t.Fatal("missing auth cookie")
+	}
+	for _, testCase := range []struct {
+		name string
+		filename string
+		content string
+	}{
+		{"svg with active script", "attack.svg", `<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>`},
+		{"HTML renamed to PNG", "attack.png", `<script>alert(1)</script>`},
+		{"PNG renamed to JPEG", "attack.jpg", "\x89PNG\r\n\x1a\ncontent"},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			body := &bytes.Buffer{}
+			writer := multipart.NewWriter(body)
+			part, err := writer.CreateFormFile("file", testCase.filename)
+			if err != nil { t.Fatal(err) }
+			if _, err := part.Write([]byte(testCase.content)); err != nil { t.Fatal(err) }
+			if err := writer.Close(); err != nil { t.Fatal(err) }
+			req := httptest.NewRequest(http.MethodPost, "/api/upload", body)
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+			req.AddCookie(cookie)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			if w.Code != http.StatusBadRequest {
+				t.Fatalf("unsafe upload %s accepted: %d %s", testCase.filename, w.Code, w.Body.String())
+			}
+		})
 	}
 }
