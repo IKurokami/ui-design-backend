@@ -220,9 +220,9 @@ func TestRejectActiveOrMisleadingImageUploads(t *testing.T) {
 		t.Fatal("missing auth cookie")
 	}
 	for _, testCase := range []struct {
-		name string
+		name     string
 		filename string
-		content string
+		content  string
 	}{
 		{"svg with active script", "attack.svg", `<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>`},
 		{"HTML renamed to PNG", "attack.png", `<script>alert(1)</script>`},
@@ -232,9 +232,15 @@ func TestRejectActiveOrMisleadingImageUploads(t *testing.T) {
 			body := &bytes.Buffer{}
 			writer := multipart.NewWriter(body)
 			part, err := writer.CreateFormFile("file", testCase.filename)
-			if err != nil { t.Fatal(err) }
-			if _, err := part.Write([]byte(testCase.content)); err != nil { t.Fatal(err) }
-			if err := writer.Close(); err != nil { t.Fatal(err) }
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := part.Write([]byte(testCase.content)); err != nil {
+				t.Fatal(err)
+			}
+			if err := writer.Close(); err != nil {
+				t.Fatal(err)
+			}
 			req := httptest.NewRequest(http.MethodPost, "/api/upload", body)
 			req.Header.Set("Content-Type", writer.FormDataContentType())
 			req.AddCookie(cookie)
