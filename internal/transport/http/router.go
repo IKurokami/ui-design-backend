@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -44,6 +45,20 @@ func NewRouter(cfg *config.Config, authHandler *AuthHandler, profileHandler *Pro
 			r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("X-Content-Type-Options", "nosniff")
 				w.Header().Set("Cache-Control", "private, no-store")
+				// FileServer otherwise exposes an index of all uploaded assets at
+				// /uploads/ (including unpublished work). Historical SVG/HTML files
+				// must never be served even if uploaded before validation existed.
+				filename := strings.TrimPrefix(r.URL.Path, "/uploads/")
+				if filename == "" || strings.Contains(filename, "/") || strings.HasPrefix(filename, ".") {
+					http.NotFound(w, r)
+					return
+				}
+				switch strings.ToLower(filepath.Ext(filename)) {
+				case ".jpg", ".jpeg", ".png", ".gif", ".webp":
+				default:
+					http.NotFound(w, r)
+					return
+				}
 				rctx := chi.RouteContext(r.Context())
 				pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
 				fs := http.StripPrefix(pathPrefix, http.FileServer(uploadsDir))
